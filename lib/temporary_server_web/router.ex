@@ -23,5 +23,8 @@ defmodule TemporaryServerWeb.Router do
      pipe_through :api
 
      get "/test", FileController, :test
+     post "/store/:binary", FileController, :store
+     get "/info/:uuid", FileController, :info
+     get "/fetch/:uuid", FileController, :fetch
   end
 end
