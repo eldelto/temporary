@@ -19,11 +19,11 @@ defmodule TemporaryServerWeb.Router do
     get "/", PageController, :index
   end
 
-  scope "/api", TemporaryServerWeb do
+  scope "/api/file", TemporaryServerWeb do
      pipe_through :api
 
      get "/test", FileController, :test
-     post "/store/:binary", FileController, :store
+     post "/store/:uuid", FileController, :store
      get "/info/:uuid", FileController, :info
      get "/fetch/:uuid", FileController, :fetch
   end

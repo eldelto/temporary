@@ -47,11 +47,17 @@ defmodule TemporaryServerWeb.Endpoint do
   configuration should be loaded from the system environment.
   """
   def init(_key, config) do
+    create_ets()
+
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
       {:ok, Keyword.put(config, :http, [:inet6, port: port])}
     else
       {:ok, config}
     end
+  end
+
+  defp create_ets() do
+    :ets.new(:file_storage, [:set, :public, :named_table])
   end
 end
