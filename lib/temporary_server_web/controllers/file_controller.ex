@@ -21,20 +21,31 @@ defmodule TemporaryServerWeb.FileController do
   end
 
   def info(conn, params) do
-    uuid = params["uuid"]
-    
-    with [{^uuid, %{binary: _, create_date: create_date}}] <- :ets.lookup(:file_storage, uuid) do
-      json conn, %{
+    json conn, fetch_file(params["uuid"], fn file_attributes -> 
+      %{
         status: "OK",
-        uuid: uuid,
-        create_date: create_date
+        uuid: file_attributes.uuid,
+        create_date: file_attributes.create_date
       }
-    else
-      _ -> json conn, %{status: "ERROR", message: "File not found."}
-    end
+    end)
   end
 
   def fetch(conn, params) do
-    json conn, %{binary: "<this will be your base64 string>"}
+    json conn, fetch_file(params["uuid"], fn file_attributes -> 
+      %{
+        status: "OK",
+        uuid: file_attributes.uuid,
+        create_date: file_attributes.create_date,
+        binary: file_attributes.binary
+      }
+    end)
+  end
+
+  defp fetch_file(uuid, json_builder) do
+    with [{^uuid, file_attributes}] <- :ets.lookup(:file_storage, uuid) do
+      json_builder.(Map.put(file_attributes, :uuid, uuid))
+    else
+      _ -> %{status: "ERROR", message: "File not found."}
+    end
   end
 end
