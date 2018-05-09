@@ -5,12 +5,10 @@ defmodule TemporaryServerWeb.FileController do
     json conn, %{test: "hello"}
   end
 
-  def store(conn, params) do
-    key = params["uuid"]
-    binary = params["binary"]
-    create_date = :os.system_time(:millisecond)
+  def store(conn, %{"uuid" => uuid, "binary" => binary}) do
+    create_date = DateTime.utc_now()
     
-    case :ets.insert_new(:file_storage, {key, %{create_date: create_date, binary: binary}}) do
+    case :ets.insert_new(:file_storage, {uuid, %{create_date: create_date, binary: binary}}) do
       true ->
         json conn, %{status: "OK"}
       false ->
@@ -18,6 +16,10 @@ defmodule TemporaryServerWeb.FileController do
       _ ->
         json conn, %{status: "ERROR", message: "Error while storing file."}
     end
+  end
+
+  def store(conn, params) do
+    json conn, %{status: "ERROR", message: "Field 'binary' is missing in JSON."}
   end
 
   def info(conn, params) do
