@@ -1,1 +1,203 @@
-/* This file is for your main application css. */
+@font-face {
+    font-family: 'Notalot';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/notalot35.regular.eot'); /* IE9 Compat Modes */
+    src: local('Notalot'), local('Notalot'),
+         url('/fonts/notalot35.regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('/fonts/notalot35.regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('/fonts/Notalot35.woff') format('woff'), /* Modern Browsers */
+         url('/fonts/Notalot35.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('/fonts/Notalot35.svg#OpenSans') format('svg'); /* Legacy iOS */
+}
+
+body {
+  font-family: 'Notalot';
+  background-color: #786abd;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+h1 {
+  font-family: 'Notalot';
+  font-size: 17vw;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+  text-align: center;
+  margin-bottom: 0;
+  margin-top: 0.2em;
+  font-weight: normal;
+}
+
+p {
+  font-family: 'Notalot';
+  font-size: 2em;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+  text-align: center;
+}
+
+button,
+.button {
+  transition: all .2s ease;
+  font-family: 'Notalot';
+  font-size: 3em;
+  line-height: 1.03em;
+  padding: 0.1em 0.4em 0.1em 0.4em;
+  border: none;
+  background-color: #fff;
+  color: #786abd;
+  margin: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+  max-height: 1000px;
+  width: 100%;
+  max-width: 8em;
+}
+
+button:enabled,
+.button:enabled {
+  cursor: pointer;
+}
+
+button:enabled:hover,
+.button:enabled:hover {
+  transform: translate3d(0, -4px, 0);
+  box-shadow: 0 5px 7px rgba(0, 0, 0, .5);
+}
+
+button:enabled:active,
+.button:enabled:active {
+  transform: translate3d(0, 3px, 0);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+button:disabled,
+.button:disabled {
+  cursor: default;
+  background-color: #e7e7e7;
+  transform: translate3d(0, 3px, 0);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+button.success,
+.button.success,
+input.button.success::placeholder {
+  color: #fff;
+  background-color: rgb(101, 175, 88);
+}
+
+button.error,
+.button.error, 
+input.button.error::placeholder {
+  color: #fff;
+  background-color: rgb(200, 70, 68);
+}
+
+input {
+  transition: all .2s ease;
+  font-family: 'Notalot';
+  font-size: 3em;
+  line-height: 1.03em;
+  border: none;
+  margin: 8px;
+  color: #000;
+  background-color: #fff;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .5);
+  max-height: 1000px;
+}
+
+input.button {
+  box-sizing: border-box;
+}
+
+input.input {
+  box-sizing: border-box;
+  border: none;
+  padding: 0.1em 0.4em 0.1em 0.4em;
+  width: 100%;
+  max-width: 15em;
+}
+
+input.button::placeholder {
+  color: #786abd;
+  opacity: 1;
+  text-align: center;
+}
+.countdown-container {
+  margin-bottom: 15vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-height: 1000px;
+}
+
+.countdown-text {
+  font-family: 'Notalot';
+  font-size: 1.8em;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
+
+.countdown {
+  font-family: 'Notalot';
+  font-size: 17vw;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+  margin-top: 0.2em;
+  margin-bottom: 0;
+}
+
+.wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
+  box-sizing: border-box;
+}
+
+.heading {
+  max-height: 1000px;
+}
+
+.content {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #786abd;
+  flex-direction: column;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.file-upload-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-height: 1000px;
+  width: 100%;
+}
+
+.hidden {
+  transition: 
+    opacity .2s ease,
+    max-height .2s ease .2s,
+    margin .2s ease .2s,
+    padding .2s ease .2s
+    !important;
+  opacity: 0 !important;
+  max-height: 0px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
