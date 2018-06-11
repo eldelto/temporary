@@ -35,8 +35,8 @@ class FileDownload extends React.Component {
           return;
         }
   
-        let base64Data = json.payload.file.base64Data;
-        let fileName = json.payload.file.name;
+        let base64Data = json.payload.base64Data;
+        let fileName = json.payload.name;
 
         this.refs.downloadButton.disable("Decrypting...");
         let decryptedData = decryptFile(base64Data, password);

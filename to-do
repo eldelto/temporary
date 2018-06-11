@@ -1,0 +1,6 @@
+- Implement chunked upload.
+- Implement chunked download.
+- Change storage method from ets to dets?
+- Use Storable struct consistently.
+- Add specs.
+- Add tests.
