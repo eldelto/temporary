@@ -27,4 +27,10 @@ defmodule TemporaryServerWeb.Router do
      get "/info/:uuid", FileController, :info
      get "/fetch/:uuid", FileController, :fetch
   end
+
+  scope "/api/chunker", TemporaryServerWeb do    
+    post "/new/:uuid", ChunkerController, :new
+    post "/append/:uuid", ChunkerController, :append
+    post "/commit/:uuid", ChunkerController, :commit
+  end
 end

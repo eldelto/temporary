@@ -57,6 +57,7 @@ defmodule TemporaryServerWeb.FileController do
     end)
   end
 
+  
   defp fetch_file(uuid, json_builder) do
     with [{^uuid, file_attributes}] <- :ets.lookup(:file_storage, uuid) do
       json_builder.(Map.put(file_attributes, :uuid, uuid))
