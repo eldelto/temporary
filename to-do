@@ -4,6 +4,7 @@
 - Implement chunked download.
   - Server
   - Client
+- Prevent download of uncommitted chunked files.
 - Use custom exceptions in error tuple.
 - Change storage method from ets to dets?
 - Use Storable struct consistently.

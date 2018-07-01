@@ -24,6 +24,28 @@ defmodule TemporaryServer.Storage do
     case :ets.lookup(:file_storage, uuid) do
       [{^uuid, storable = %__MODULE__{}}] -> {:ok, storable}
       _ -> {:error, "ETS entry not found."}
+    end 
+  end
+
+  def add_downloaded_chunk(storable, index) do
+    with  downloaded_chunks <- [index] ++ storable.downloaded_chunks,
+          storable <- %__MODULE__{storable | downloaded_chunks: downloaded_chunks},
+          true <- :ets.insert(:file_storage, {storable.uuid, storable}) do
+      {:ok, storable}
+    else
+      false -> {:error, "Could not insert data into ETS."}
+      err -> err
+    end
+  end
+
+  def remove(%__MODULE__{uuid: uuid}) do
+    remove(uuid)
+  end
+
+  def remove(uuid) do
+    case :ets.delete(:file_storage, uuid) do
+      true -> {:ok, nil}
+      _ -> {:error, "Could not remove data from ETS."}
     end
   end
 end

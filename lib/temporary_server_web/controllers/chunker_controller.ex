@@ -62,6 +62,24 @@ defmodule TemporaryServerWeb.ChunkerController do
     end
   end
 
+  def get_chunk(conn, %{"uuid" => uuid, "index" => index}) do
+    with  {index, _} <- Integer.parse(index),
+          {:ok, storable} <- Storage.get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
+          {:ok, data} <- ChunkedFile.chunk(chunked_file, index),
+          {:ok, storable} <- Storage.add_downloaded_chunk(storable, index) do
+      {:ok, chunks} = ChunkedFile.chunks(chunked_file)
+      if length(storable.downloaded_chunks) == length(chunks) do
+        # TODO: the next line might not do anything if the chunked file is committed.
+        ChunkedFile.remove(chunked_file)
+        Storage.remove(storable)
+      end
+      json conn, Message.success("Successfully fetched chunk.", 
+                          %{"data" => data})
+    else
+      _ -> json conn, Message.error("Error while fetching chunk.")
+    end
+  end
 
   defp chunked_file_from_uuid(uuid) do
     storage_path = Storage.path(uuid)
