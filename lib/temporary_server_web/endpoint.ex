@@ -49,6 +49,7 @@ defmodule TemporaryServerWeb.Endpoint do
   """
   def init(_key, config) do
     create_ets()
+    clear_file_storage()
 
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
@@ -60,5 +61,9 @@ defmodule TemporaryServerWeb.Endpoint do
 
   defp create_ets() do
     :ets.new(:file_storage, [:set, :public, :named_table])
+  end
+
+  defp clear_file_storage() do
+    :os.cmd(to_charlist("rm -rf " <> TemporaryServer.Storage.path("*")))
   end
 end

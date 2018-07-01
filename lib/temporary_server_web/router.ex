@@ -32,5 +32,8 @@ defmodule TemporaryServerWeb.Router do
     post "/new/:uuid", ChunkerController, :new
     post "/append/:uuid", ChunkerController, :append
     post "/commit/:uuid", ChunkerController, :commit
+
+    get "/length/:uuid", ChunkerController, :length
+    get "/chunk/:index/:uuid", ChunkerController, :get_chunk
   end
 end

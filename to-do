@@ -1,5 +1,10 @@
 - Implement chunked upload.
+  # Server
+  - Client
 - Implement chunked download.
+  - Server
+  - Client
+- Use custom exceptions in error tuple.
 - Change storage method from ets to dets?
 - Use Storable struct consistently.
 - Add specs.

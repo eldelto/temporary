@@ -1,5 +1,9 @@
 defmodule TemporaryServer.Storage do
-  defstruct uuid: nil, name: nil, path: nil, create_date: DateTime.utc_now()
+  defstruct uuid: nil, 
+            name: nil, 
+            path: nil, 
+            create_date: DateTime.utc_now(), 
+            downloaded_chunks: []
 
   def path(path) do
     Path.join("file_storage", path)
@@ -13,6 +17,13 @@ defmodule TemporaryServer.Storage do
       false ->
         {:error, false}
       err -> err      
+    end
+  end
+
+  def get(uuid) do
+    case :ets.lookup(:file_storage, uuid) do
+      [{^uuid, storable = %__MODULE__{}}] -> {:ok, storable}
+      _ -> {:error, "ETS entry not found."}
     end
   end
 end

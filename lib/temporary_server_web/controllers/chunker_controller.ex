@@ -27,7 +27,8 @@ defmodule TemporaryServerWeb.ChunkerController do
     "uuid" => uuid, 
     "base64Data" => base_64_data
     }) do
-    with  {:ok, chunked_file} <- chunked_file_from_uuid(uuid),
+    with  {:ok, storable} <- Storage.get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
           {:ok, _} <- ChunkedFile.append_chunk(chunked_file, base_64_data) do
       json conn, Message.success("Chunk successfully appended.") 
     else
@@ -40,7 +41,8 @@ defmodule TemporaryServerWeb.ChunkerController do
   end
 
   def commit(conn, %{"uuid" => uuid}) do
-    with  {:ok, chunked_file} <- chunked_file_from_uuid(uuid),
+    with  {:ok, storable} <- Storage.get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
           {:ok, _} <- ChunkedFile.commit(chunked_file),
           {:ok, _} <- ChunkedFile.remove(chunked_file) do
       json conn, Message.success("Chunked file successfully committed.") 
@@ -49,9 +51,24 @@ defmodule TemporaryServerWeb.ChunkerController do
     end
   end
 
+  def length(conn, %{"uuid" => uuid}) do
+    with  {:ok, storable} <- Storage.get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
+          {:ok, chunks} <- ChunkedFile.chunks(chunked_file) do
+      json conn, Message.success("Successfully fetched chunked file length.", 
+                          %{"length" => length(chunks)})
+    else
+      _ -> json conn, Message.error("Error while fetching chunked file length.")
+    end
+  end
+
 
   defp chunked_file_from_uuid(uuid) do
     storage_path = Storage.path(uuid)
     Chunker.new(storage_path)
+  end
+
+  defp chunked_file_from_storable(storable) do
+    Chunker.new(storable.path)
   end
 end
