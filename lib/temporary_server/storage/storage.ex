@@ -28,11 +28,13 @@ defmodule TemporaryServer.Storage do
   end
 
   def add_downloaded_chunk(storable, index) do
-    with  downloaded_chunks <- [index] ++ storable.downloaded_chunks,
+    with  false <- Enum.any?(storable.downloaded_chunks, &(&1 == index)),
+          downloaded_chunks <- [index] ++ storable.downloaded_chunks,
           storable <- %__MODULE__{storable | downloaded_chunks: downloaded_chunks},
           true <- :ets.insert(:file_storage, {storable.uuid, storable}) do
       {:ok, storable}
     else
+      true -> {:ok, storable}
       false -> {:error, "Could not insert data into ETS."}
       err -> err
     end

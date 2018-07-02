@@ -2,11 +2,10 @@
   # Server
   - Client
 - Implement chunked download.
-  - Server
+  # Server
   - Client
-- Prevent download of uncommitted chunked files.
+# Prevent download of uncommitted chunked files.
+# Clean up job for chunked files.
 - Use custom exceptions in error tuple.
-- Change storage method from ets to dets?
-- Use Storable struct consistently.
-- Add specs.
-- Add tests.
+- Add specs?
+- Add tests?
