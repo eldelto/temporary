@@ -31,6 +31,7 @@ class FileUpload extends React.Component {
         alert("Multi-file-upload is not supported yet.");
       } else {
         let file = files[0];
+        forEachSlice(file, (slice) => console.log(slice))
         readFile(file, (data) => {
           let password = crypto.randomBytes(8).toString("hex");
           this.setState({ 
@@ -152,6 +153,36 @@ class FileUpload extends React.Component {
       body: JSON.stringify(data),
       method: "POST"
     });
+  }
+
+  function forEachSlice(file, callback) {    
+    const sliceSize = 1024 * 1024; // 1 MB
+    const maxSize = file.size;
+    let start = 0;
+    let end = 0;
+
+    console.log("Max size: " + maxSize); 
+
+    for (let i = 0; start < maxSize; i++) {      
+      end = start + sliceSize;
+      if (end > maxSize) end = maxSize
+
+      callback(file.slice(start, end))
+
+      start = (i + 1) * sliceSize;
+    }
+  }
+
+  function newChunkedFile(uuid, name) {
+
+  }
+
+  function addChunk(uuid, data) {
+
+  }
+
+  function commitChunkedfile(uuid) {
+    
   }
 
   export default FileUpload;
