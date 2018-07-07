@@ -10,7 +10,8 @@ defmodule TemporaryServer.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(TemporaryServerWeb.Endpoint, []),
-      worker(TemporaryServer.Storage.Cleanup, [])
+      worker(TemporaryServer.Storage.Cleanup, []),
+      worker(TemporaryServer.Storage, [[]])
       # Start your own worker by calling: TemporaryServer.Worker.start_link(arg1, arg2, arg3)
       # worker(TemporaryServer.Worker, [arg1, arg2, arg3]),
     ]

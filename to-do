@@ -6,6 +6,7 @@
   - Client
 # Prevent download of uncommitted chunked files.
 # Clean up job for chunked files.
+- Create Storage GenServer to handle ChunkedFile operations sequentially.
 - Use custom exceptions in error tuple.
 - Add specs?
 - Add tests?
