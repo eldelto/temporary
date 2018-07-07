@@ -34,17 +34,18 @@ class FileUpload extends React.Component {
       
       let uuid = crypto.randomBytes(16).toString("hex");
       newChunkedFile(uuid, name)
-      .then((e) => {
-        forEachSlice(file, (slice) => {
-          appendChunk(uuid, "slice\n")
+      .then(function() {
+        return forEachSlice(file, function(slice) {
+          return blobToBase64(slice)
+          .then(function(data) { return appendChunk(uuid, data) });
         })
       })
-      .then((e) => {
+      .then(function(e) {
         console.log("pre-commit");
         console.log(e);
-        commitChunkedfile(uuid);
+        return commitChunkedfile(uuid);
       })
-      .then((e) => console.log("DONE"));
+      .then(function(e){ console.log("DONE") });
       
 
 
@@ -185,7 +186,10 @@ function forEachSlice(file, callback) {
       return promise;
     }
     
-    let next = promise.then(callback(file.slice(start, end)));
+    let next = promise.then(function() {
+      console.log("callback")
+      return callback(file.slice(start, end));
+    });
   
     console.log(next);
     start += sliceSize;
@@ -244,13 +248,16 @@ function commitChunkedfile(uuid) {
 }
 
 function blobToBase64(blob) {
+  console.log("encode");
   return new Promise((resolve, reject) => {
-    const reader = new FileReader;
-    reader.onerror = reject;
-    reader.onload = () => {
-        resolve(reader.result);
-    };
+    const reader = new FileReader();
     reader.readAsDataURL(blob);
+    reader.onload = () => {
+      let result = reader.result;
+      result = result.replace("data:application/octet-stream;base64,", "")
+      resolve(result);
+    }
+    reader.onerror = error => reject(error);
   });
 }
 
