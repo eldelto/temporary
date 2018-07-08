@@ -27,7 +27,18 @@ class FileDownload extends React.Component {
       let password = inputValues[1];
 
       this.refs.downloadButton.disable("Downloading...");
-      fetchFile(uuid)
+      
+      getChunkCount(uuid)
+      .then(function(count) { 
+        return combineChunks(uuid, count);
+      })
+      .then(function(data) {
+        let blob = chunkedFileToBlob(data);
+        this.refs.downloadButton.success();
+        downloadFile(blob, "test");
+      }.bind(this));
+      
+      /*fetchFile(uuid)
       .then(json => {
         if (json.status !== "OK") {
           this.refs.downloadButton.error();
@@ -49,7 +60,7 @@ class FileDownload extends React.Component {
         console.error("Error while fetching file: " + error);
         this.props.onError();
         this.refs.downloadButton.error();
-      }.bind(this));
+      }.bind(this));*/
     }
   }
 
@@ -92,8 +103,7 @@ function decryptFile(data, password) {
   return CryptoJS.AES.decrypt(data, password).toString(CryptoJS.enc.Latin1);
 }
 
-function downloadFile(data, name) {
-  let blobData = dataURIToBlob(data);
+function downloadFile(blobData, name) {  
   let link = document.createElement("a");
   link.download = name;
   link.href = URL.createObjectURL(blobData);
@@ -115,7 +125,67 @@ function dataURIToBlob(dataURI) {
   return new Blob([arr], {
     type: mimeString
   });
+}
 
+function getChunkCount(uuid) {
+  return fetch("/api/chunker/length/" + uuid, {
+    headers: {"content-type": "application/json"},
+    method: "GET"
+  })
+  .then(function(response) { return response.json() })
+  .then(function(json) { return Promise.resolve(json.payload.length)});
+}
+
+function getChunk(uuid, index) {
+  return fetch("/api/chunker/chunk/" + index + "/" + uuid, {
+    headers: {"content-type": "application/json"},
+    method: "GET"
+  })
+  .then(function(response) { return response.json() })
+  .then(function(json) { return Promise.resolve(json.payload.data)});
+}
+
+function combineChunks(uuid, count) {
+  let chunks = [];
+  let recurse = function (promise, index) {  
+    console.log(index + ":" + count);
+    if (index >= count) {
+      return Promise.resolve(chunks.join(""));
+    }
+    
+    let next = promise.then(function() {
+      console.log("callback")
+      return getChunk(uuid, index);
+    });
+  
+    console.log(next);
+  
+    return next.then(function(data) {
+      //console.log(data);   
+      chunks.push(data);
+      return recurse(next, index + 1);
+    });
+  }
+
+  let finalPromise = recurse(Promise.resolve(), 0, []);
+  console.log("finalPromise");
+  console.log(finalPromise);
+  return finalPromise;
+}
+
+function chunkedFileToBlob(chunkedFile) {
+  //console.log(chunkedFile);
+  let chunks = chunkedFile.split("chunk:");  
+  chunks = chunks.filter(function(chunk) {
+    return chunk !== ""
+  })
+  .map(function(chunk) {
+    console.log(chunk);
+    return dataURIToBlob(chunk);
+  });
+
+  console.log(chunks);
+  return new Blob(chunks);
 }
 
 export default FileDownload;

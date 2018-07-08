@@ -197,51 +197,35 @@ function sendToServer(uuid, fileName, binary) {
 
 function forEachSlice(file, callback) {
   const sliceSize = 1024 * 1024; // 1 MB
-  const maxSize = file.size;
-  let start = 0;
-  let end = 0;
+  const maxSize = file.size;  
 
   console.log("Max size: " + maxSize);
 
   let recurse = function (promise, start, end) {  
-    console.log(start + ":" + maxSize);
+    console.log(start + ":" + end);
     if (start >= maxSize) {
       return promise;
     }
+
+    if (end > maxSize) {
+      end = maxSize;
+    }
     
     let next = promise.then(function() {
-      console.log("callback")
+      console.log(file.slice(start, end));
+      console.log("callback " + start + ":" + end)      
       return callback(file.slice(start, end));
     });
   
     console.log(next);
-    start += sliceSize;
-    end = start + sliceSize;
   
-    return recurse(next, start, end);
+    return recurse(next, start + sliceSize, start + 2 * sliceSize);
   }
 
   let finalPromise = recurse(Promise.resolve(), 0, sliceSize);
   console.log("finalPromise");
   console.log(finalPromise);
   return finalPromise;
-}
-
-function accumulator(promise, start, end, sliceSize, file, callback) {  
-  console.log(start + ":" + file.size);
-  if (start >= file.size) {
-    return promise;
-  }
-  
-  let next = promise.then(() => {
-    callback(file.slice(start, end))
-  });
-
-  console.log(next);
-  start += sliceSize;
-  end = start + sliceSize;
-
-  return accumulator(next, start, end, sliceSize, file, callback);  
 }
 
 function newChunkedFile(uuid, name) {
@@ -275,11 +259,7 @@ function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(blob);
-    reader.onload = () => {
-      let result = reader.result;
-      result = result.replace("data:application/octet-stream;base64,", "")
-      resolve(result);
-    }
+    reader.onload = () => resolve(reader.result);
     reader.onerror = error => reject(error);
   });
 }

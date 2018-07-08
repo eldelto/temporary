@@ -64,7 +64,7 @@ defmodule TemporaryServerWeb.ChunkerController do
       if length(storable.downloaded_chunks) == length(chunks) do
         {:ok, _} = remove_file_entry(storable, chunked_file)
         Logger.info("Removed #{inspect storable.uuid}")
-      end
+      end      
       json conn, Message.success("Successfully fetched chunk.", 
                           %{"data" => data})
     else

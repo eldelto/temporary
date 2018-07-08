@@ -47,7 +47,7 @@ defmodule TemporaryServer.Storage do
   def handle_call({:append, uuid, data}, _from, state) do
     with  {:ok, storable} <- get(uuid),
           {:ok, chunked_file} <- chunked_file_from_storable(storable),
-          {:ok, _} <- ChunkedFile.append_chunk(chunked_file, data) do
+          {:ok, _} <- ChunkedFile.append_chunk(chunked_file, "chunk:" <> data) do
       {:reply, {:ok, nil}, state}
     else
       _ -> {:reply, {:error, "Error while appending chunk."}, state}
