@@ -30,9 +30,10 @@ class FileUpload extends React.Component {
     if(files.length > 1) {
       alert("Multi-file-upload is not supported yet.");
     } else {
-      let file = files[0];
-      
+      let file = files[0];      
       let uuid = crypto.randomBytes(16).toString("hex");
+      let password = crypto.randomBytes(8).toString("hex");
+
       newChunkedFile(uuid, name)
       .then(function() {
         return forEachSlice(file, function(slice) {
@@ -45,7 +46,29 @@ class FileUpload extends React.Component {
         console.log(e);
         return commitChunkedfile(uuid);
       })
-      .then(function(e){ console.log("DONE") });
+      .then(function(response){ return response.json() })
+      .then(function(json) {
+        if (json.status === "OK") {
+          return this.refs.uploadButton.success();          
+        } else {
+          this.props.onError();
+          this.refs.uploadButton.error();
+          return Promise.reject(new Error("Request returned with JSON status: " + json.status));
+        }      
+      }.bind(this))
+      .then(function() {
+        this.props.onSuccess();
+        this.setState({
+          buttonText: "Copy ID",
+          enabled: true,
+          clickHandler: () => this.copyToClipboard(uuid + ":" + password)
+        })
+      }.bind(this))
+      .catch(function(error) {
+        console.error(error);
+        this.props.onError();
+        this.refs.uploadButton.error();
+      }.bind(this));
       
 
 
