@@ -101,7 +101,7 @@ function downloadFile(blobData, name) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    return Promise.resolve();
+    return resolve([]);
   });  
 }
 
