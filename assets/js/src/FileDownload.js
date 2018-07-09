@@ -150,7 +150,7 @@ function combineChunks(uuid, count) {
   let recurse = function (promise, index) {  
     console.log(index + ":" + count);
     if (index >= count) {
-      return Promise.resolve(chunks.join(""));
+      return Promise.resolve(chunks);
     }
     
     let next = promise.then(function() {
@@ -173,18 +173,14 @@ function combineChunks(uuid, count) {
   return finalPromise;
 }
 
-function chunkedFileToBlob(chunkedFile) {
-  //console.log(chunkedFile);
-  let chunks = chunkedFile.split("chunk:");  
+function chunkedFileToBlob(chunks) {  
   chunks = chunks.filter(function(chunk) {
     return chunk !== ""
   })
   .map(function(chunk) {
-    console.log(chunk);
     return dataURIToBlob(chunk);
   });
-
-  console.log(chunks);
+  
   return new Blob(chunks);
 }
 
