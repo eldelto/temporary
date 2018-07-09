@@ -38,11 +38,13 @@ class FileDownload extends React.Component {
         .then(function(count) { 
           return combineChunks(uuid, count);
         })
-      })      
+      })
       .then(function(data) {
-        let blob = chunkedFileToBlob(data);
+        return chunkedFileToBlob(data);
+      })
+      .then(function(blob) {        
         this.refs.downloadButton.success();
-        downloadFile(blob, name);
+        return downloadFile(blob, name);
       }.bind(this))
       .catch(function(error) {
         console.error("Error while fetching file: " + error);
@@ -91,13 +93,16 @@ function decryptFile(data, password) {
   return CryptoJS.AES.decrypt(data, password).toString(CryptoJS.enc.Latin1);
 }
 
-function downloadFile(blobData, name) {  
-  let link = document.createElement("a");
-  link.download = name;
-  link.href = URL.createObjectURL(blobData);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+function downloadFile(blobData, name) {
+  return new Promise(function(resolve, reject) {
+    let link = document.createElement("a");
+    link.download = name;
+    link.href = URL.createObjectURL(blobData);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return Promise.resolve();
+  });  
 }
 
 function dataURIToBlob(dataURI) {
@@ -170,15 +175,17 @@ function combineChunks(uuid, count) {
   return finalPromise;
 }
 
-function chunkedFileToBlob(chunks) {  
-  chunks = chunks.filter(function(chunk) {
-    return chunk !== ""
-  })
-  .map(function(chunk) {
-    return dataURIToBlob(chunk);
-  });
-  
-  return new Blob(chunks);
+function chunkedFileToBlob(chunks) {
+  return new Promise(function(resolve, reject) {
+    chunks = chunks.filter(function(chunk) {
+      return chunk !== ""
+    })
+    .map(function(chunk) {
+      return dataURIToBlob(chunk);
+    });
+    
+    return resolve(new Blob(chunks));
+  });  
 }
 
 export default FileDownload;
