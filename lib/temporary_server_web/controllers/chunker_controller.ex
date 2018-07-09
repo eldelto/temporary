@@ -42,6 +42,17 @@ defmodule TemporaryServerWeb.ChunkerController do
     end 
   end
 
+  def name(conn, %{"uuid" => uuid}) do
+    case Storage.get(uuid) do
+      {:ok, storable} ->        
+        json conn, Message.success("Successfully fetched name.", 
+          %{"name" => storable.name})
+      {:error, message} -> 
+        Logger.error(message)
+        json conn, Message.error("Error while fetching chunked file length.")
+    end    
+  end
+
   def length(conn, %{"uuid" => uuid}) do
     with  {:ok, storable} <- Storage.get(uuid),
           {:ok, chunked_file} <- chunked_file_from_storable(storable),
@@ -72,12 +83,7 @@ defmodule TemporaryServerWeb.ChunkerController do
       _ -> json conn, Message.error("Error while fetching chunk.")
     end
   end
-
-  defp chunked_file_from_uuid(uuid) do
-    storage_path = Storage.path(uuid)
-    Chunker.new(storage_path)
-  end
-
+  
   defp chunked_file_from_storable(storable) do
     Chunker.new(storable.path, 1_398_147)
   end

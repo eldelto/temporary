@@ -34,7 +34,7 @@ class FileUpload extends React.Component {
       let uuid = crypto.randomBytes(16).toString("hex");
       let password = crypto.randomBytes(8).toString("hex");
 
-      newChunkedFile(uuid, name)
+      newChunkedFile(uuid, file.name)
       .then(function() {
         return forEachSlice(file, function(slice) {
           return blobToBase64(slice)
@@ -68,48 +68,7 @@ class FileUpload extends React.Component {
         console.error(error);
         this.props.onError();
         this.refs.uploadButton.error();
-      }.bind(this));
-      
-
-
-      /*readFile(file, (data) => {
-        let password = crypto.randomBytes(8).toString("hex");
-        this.setState({
-          password: password,
-          buttonText: "Encrypting..."
-        });
-
-        let encryptedData = encryptFile(data, password);
-        let encryptedFileName = encryptFile(file.name, password);
-
-        this.setState({ buttonText: "Uploading..."});
-        let uuid = crypto.randomBytes(16).toString("hex");
-
-        sendToServer(uuid, encryptedFileName, encryptedData)
-        .then(response => response.json())
-        .then(json => {
-          if (json.status === "OK") {
-            this.refs.uploadButton.success()
-            .then(function() {
-              this.props.onSuccess();
-              this.setState({
-                buttonText: "Copy ID",
-                enabled: true,
-                clickHandler: () => this.copyToClipboard(uuid + ":" + password)
-              })
-            }.bind(this));
-          } else {
-            this.props.onError();
-            this.refs.uploadButton.error();
-            return Promise.reject(new Error("Request returned with JSON status: " + json.status));
-          }
-        })
-        .catch(function(error) {
-          console.error(error);
-          this.props.onError();
-          this.refs.uploadButton.error();
-        }.bind(this));
-      });*/
+      }.bind(this));      
     }
   }
 

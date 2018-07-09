@@ -24,43 +24,31 @@ class FileDownload extends React.Component {
       }
 
       let uuid = inputValues[0];
-      let password = inputValues[1];
-
+      let password = inputValues[1];      
+      let name = "unnamed";
       this.refs.downloadButton.disable("Downloading...");
       
-      getChunkCount(uuid)
-      .then(function(count) { 
-        return combineChunks(uuid, count);
+      getName(uuid)
+      .then(function(result) {
+        name = result        
+        return Promise.resolve();
       })
+      .then(function() {
+        return getChunkCount(uuid)
+        .then(function(count) { 
+          return combineChunks(uuid, count);
+        })
+      })      
       .then(function(data) {
         let blob = chunkedFileToBlob(data);
         this.refs.downloadButton.success();
-        downloadFile(blob, "test");
-      }.bind(this));
-      
-      /*fetchFile(uuid)
-      .then(json => {
-        if (json.status !== "OK") {
-          this.refs.downloadButton.error();
-          console.log("Call to '/api/file/fetch' returned error: " + json.message);
-          return;
-        }
-  
-        let base64Data = json.payload.base64Data;
-        let fileName = json.payload.name;
-
-        this.refs.downloadButton.disable("Decrypting...");
-        let decryptedData = decryptFile(base64Data, password);
-        let decryptedFilename = decryptFile(fileName, password);
-
-        this.refs.downloadButton.success();
-        downloadFile(decryptedData, decryptedFilename);
-      })
+        downloadFile(blob, name);
+      }.bind(this))
       .catch(function(error) {
         console.error("Error while fetching file: " + error);
         this.props.onError();
         this.refs.downloadButton.error();
-      }.bind(this));*/
+      }.bind(this));
     }
   }
 
@@ -125,6 +113,15 @@ function dataURIToBlob(dataURI) {
   return new Blob([arr], {
     type: mimeString
   });
+}
+
+function getName(uuid) {
+  return fetch("/api/chunker/name/" + uuid, {
+    headers: {"content-type": "application/json"},
+    method: "GET"
+  })
+  .then(function(response) { return response.json() })
+  .then(function(json) { return Promise.resolve(json.payload.name)});
 }
 
 function getChunkCount(uuid) {
