@@ -40,11 +40,14 @@ class FileDownload extends React.Component {
         })
       })
       .then(function(data) {
+        return decryptFile(data, password);
+      })
+      .then(function(data) {        
         return chunkedFileToBlob(data);
       })
       .then(function(blob) {        
         this.refs.downloadButton.success();
-        return downloadFile(blob, name);
+        return downloadFile(blob, decryptData(name, password));
       }.bind(this))
       .catch(function(error) {
         console.error("Error while fetching file: " + error);
@@ -88,9 +91,17 @@ function fetchFile(uuid) {
     });
 } 
 
+function decryptData(data, password) {
+  return CryptoJS.AES.decrypt(data, password).toString(CryptoJS.enc.Latin1);
+}
 
 function decryptFile(data, password) {
-  return CryptoJS.AES.decrypt(data, password).toString(CryptoJS.enc.Latin1);
+  return new Promise(function(resolve, reject) {
+    data = data.map(function(d) {      
+      return decryptData(d, password);      
+    });
+    return resolve(data);
+  });
 }
 
 function downloadFile(blobData, name) {

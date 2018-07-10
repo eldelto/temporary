@@ -85,7 +85,7 @@ defmodule TemporaryServerWeb.ChunkerController do
   end
   
   defp chunked_file_from_storable(storable) do
-    Chunker.new(storable.path, 1_398_147)
+    Chunker.new(storable.path, 1_864_216)
   end
 
   defp remove_file_entry(storable, chunked_file) do

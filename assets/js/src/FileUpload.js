@@ -33,12 +33,16 @@ class FileUpload extends React.Component {
       let file = files[0];      
       let uuid = crypto.randomBytes(16).toString("hex");
       let password = crypto.randomBytes(8).toString("hex");
+      let encryptedName = encryptFile(file.name, password);
 
-      newChunkedFile(uuid, file.name)
+      newChunkedFile(uuid, encryptedName.toString())
       .then(function() {
         return forEachSlice(file, function(slice) {
           return blobToBase64(slice)
-          .then(function(data) { return appendChunk(uuid, data) });
+          .then(function(data) { 
+            data = encryptFile(data, password);
+            return appendChunk(uuid, data.toString()) 
+          });
         })
       })
       .then(function(e) {
