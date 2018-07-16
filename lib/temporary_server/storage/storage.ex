@@ -26,7 +26,43 @@ defmodule TemporaryServer.Storage do
   end
 
   def get_chunk(uuid, index) do
-    GenServer.call(__MODULE__, {:get_chunk, uuid, index})
+    # TODO: implement
+  end
+
+  def path() do
+    "file_storage"
+  end
+
+  def path(path) do
+    Path.join("file_storage", path)
+  end
+
+  def get(uuid) do
+    case :ets.lookup(:file_storage, uuid) do
+      [{^uuid, storable = %__MODULE__{}}] -> {:ok, storable}
+      _ -> {:error, "ETS entry not found."}
+    end 
+  end
+
+  def chunk_count(uuid) do
+    with  {:ok, storable} <- get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
+          {:ok, chunks} <- ChunkedFile.chunks(chunked_file) do
+      {:ok, length(chunks)}
+    else
+      err -> err
+    end
+  end
+
+  def remove(%__MODULE__{uuid: uuid}) do
+    remove(uuid)
+  end
+
+  def remove(uuid) do
+    case :ets.delete(:file_storage, uuid) do
+      true -> {:ok, nil}
+      _ -> {:error, "Could not remove data from ETS."}
+    end
   end
 
   def init(:ok) do
@@ -65,15 +101,7 @@ defmodule TemporaryServer.Storage do
     end
   end
 
-  def path() do
-    "file_storage"
-  end
-
-  def path(path) do
-    Path.join("file_storage", path)
-  end
-
-  def store(uuid, name, path) do
+  defp store(uuid, name, path) do
     storable = %__MODULE__{uuid: uuid, name: name, path: path}
     case :ets.insert_new(:file_storage, {uuid, storable}) do
       true ->
@@ -82,13 +110,6 @@ defmodule TemporaryServer.Storage do
         {:error, false}
       err -> err      
     end
-  end
-
-  def get(uuid) do
-    case :ets.lookup(:file_storage, uuid) do
-      [{^uuid, storable = %__MODULE__{}}] -> {:ok, storable}
-      _ -> {:error, "ETS entry not found."}
-    end 
   end
 
   def add_downloaded_chunk(storable, index) do
@@ -104,24 +125,13 @@ defmodule TemporaryServer.Storage do
     end
   end
 
-  def remove(%__MODULE__{uuid: uuid}) do
-    remove(uuid)
-  end
-
-  def remove(uuid) do
-    case :ets.delete(:file_storage, uuid) do
-      true -> {:ok, nil}
-      _ -> {:error, "Could not remove data from ETS."}
-    end
-  end
-
   defp chunked_file_from_uuid(uuid) do
     storage_path = path(uuid)
     Chunker.new(storage_path)
   end
 
   defp chunked_file_from_storable(storable) do
-    Chunker.new(storable.path)
+    Chunker.new(storable.path, 1_864_216)
   end
 
   defp remove_file_entry(storable, chunked_file) do
