@@ -1,6 +1,8 @@
 defmodule TemporaryServer.Storage do
   use GenServer
 
+  require Logger
+
   alias Chunker.ChunkedFile
 
   defstruct uuid: nil, 
@@ -26,7 +28,20 @@ defmodule TemporaryServer.Storage do
   end
 
   def get_chunk(uuid, index) do
-    # TODO: implement
+    with  {:ok, storable} <- get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
+          false <- ChunkedFile.writeable?(chunked_file),
+          {:ok, data} <- ChunkedFile.chunk(chunked_file, index),
+          {:ok, storable} <- add_downloaded_chunk(storable, index) do
+      {:ok, chunks} = ChunkedFile.chunks(chunked_file)
+      if length(storable.downloaded_chunks) == length(chunks) do
+        {:ok, _} = remove(storable)
+        Logger.info("Removed #{inspect storable.uuid}")
+      end      
+      {:ok, data}
+    else
+      err -> err
+    end
   end
 
   def path() do
@@ -59,9 +74,12 @@ defmodule TemporaryServer.Storage do
   end
 
   def remove(uuid) do
-    case :ets.delete(:file_storage, uuid) do
-      true -> {:ok, nil}
-      _ -> {:error, "Could not remove data from ETS."}
+    with {:ok, storable} <- get(uuid),
+        {:ok, chunked_file} <- chunked_file_from_storable(storable),
+        true <- :ets.delete(:file_storage, uuid) do
+      remove_chunked_file(chunked_file)
+    else
+      err -> err
     end
   end
 
@@ -112,7 +130,7 @@ defmodule TemporaryServer.Storage do
     end
   end
 
-  def add_downloaded_chunk(storable, index) do
+  defp add_downloaded_chunk(storable, index) do
     with  false <- Enum.any?(storable.downloaded_chunks, &(&1 == index)),
           downloaded_chunks <- [index] ++ storable.downloaded_chunks,
           storable <- %__MODULE__{storable | downloaded_chunks: downloaded_chunks},
@@ -134,11 +152,14 @@ defmodule TemporaryServer.Storage do
     Chunker.new(storable.path, 1_864_216)
   end
 
-  defp remove_file_entry(storable, chunked_file) do
-    path = ChunkedFile.path(chunked_file)
-    
+  defp remove_chunked_file(chunked_file) do
+    if ChunkedFile.writeable?(chunked_file) do
+      ChunkedFile.remove(chunked_file)
+    end
+
+    path = ChunkedFile.path(chunked_file)    
     case File.rm(path) do      
-      :ok -> remove(storable)    
+      :ok -> {:ok, nil}  
       err -> err
     end
   end
