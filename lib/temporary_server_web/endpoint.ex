@@ -1,6 +1,8 @@
 defmodule TemporaryServerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :temporary_server
 
+  alias TemporaryServer.Storage
+
   socket "/socket", TemporaryServerWeb.UserSocket
 
   # Serve at "/" the static files from "priv/static" directory.
@@ -49,6 +51,7 @@ defmodule TemporaryServerWeb.Endpoint do
   """
   def init(_key, config) do
     create_ets()
+    create_storage_dir()
     clear_file_storage()
 
     if config[:load_from_system_env] do
@@ -63,7 +66,11 @@ defmodule TemporaryServerWeb.Endpoint do
     :ets.new(:file_storage, [:set, :public, :named_table])
   end
 
+  defp create_storage_dir do
+    File.mkdir(Storage.path())
+  end
+
   defp clear_file_storage() do
-    :os.cmd(to_charlist("rm -rf " <> TemporaryServer.Storage.path("*")))
+    :os.cmd(to_charlist("rm -rf " <> Storage.path("*")))
   end
 end

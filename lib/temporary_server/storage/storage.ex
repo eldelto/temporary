@@ -65,6 +65,9 @@ defmodule TemporaryServer.Storage do
     end
   end
 
+  def path() do
+    "file_storage"
+  end
 
   def path(path) do
     Path.join("file_storage", path)
