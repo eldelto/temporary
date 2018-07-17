@@ -222,7 +222,10 @@ function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(blob);
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () => {      
+      let result = "data:application/octet-stream;base64," + reader.result.split(",")[1];
+      return resolve(result);
+    }
     reader.onerror = error => reject(error);
   });
 }
