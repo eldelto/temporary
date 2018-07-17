@@ -1,6 +1,8 @@
 defmodule TemporaryServer.Storage.Cleanup do
   use GenServer
 
+  alias TemporaryServer.Storage
+
   require Logger
 
   def start_link do
@@ -20,16 +22,16 @@ defmodule TemporaryServer.Storage.Cleanup do
   end
 
   defp schedule_work() do
-    Process.send_after(self(), :work, 60 * 1000) # Every minute
+    Process.send_after(self(), :work, 5 * 60 * 1000) # Every 5 minutes
   end
 
   defp remove_old_files(table) do
     now = DateTime.to_unix(DateTime.utc_now())
 
     :ets.foldl(fn item, _ -> 
-      {key, file_attributes} = item
-      if DateTime.to_unix(file_attributes.create_date) + 3 * 24 * 60 * 60 < now do
-        :ets.delete(table, key)
+      {key, storable = %Storage{}} = item
+      if DateTime.to_unix(storable.create_date) + 3 * 24 * 60 * 60 < now do
+        Storage.remove(storable)
       end
     end, [], table)
 
