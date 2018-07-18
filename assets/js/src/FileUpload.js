@@ -12,6 +12,7 @@ class FileUpload extends React.Component {
     this.uploadFile = this.uploadFile.bind(this);
     this.copyToClipboard = this.copyToClipboard.bind(this);
     this.reset = this.reset.bind(this);
+    this.forEachSlice = this.forEachSlice.bind(this);
 
     this.state = {
       file: "",
@@ -37,17 +38,15 @@ class FileUpload extends React.Component {
 
       newChunkedFile(uuid, encryptedName.toString())
       .then(function() {
-        return forEachSlice(file, function(slice) {
+        return this.forEachSlice(file, function(slice) {
           return blobToBase64(slice)
           .then(function(data) { 
             data = encryptFile(data, password);
             return appendChunk(uuid, data.toString()) 
           });
         })
-      })
+      }.bind(this))
       .then(function(e) {
-        console.log("pre-commit");
-        console.log(e);
         return commitChunkedfile(uuid);
       })
       .then(function(response){ return response.json() })
@@ -104,6 +103,33 @@ class FileUpload extends React.Component {
     });
   }
 
+  forEachSlice(file, callback) {
+    const sliceSize = 1024 * 1024; // 1 MB
+    const maxSize = file.size;
+    const maxChunks = Math.ceil(maxSize / sliceSize);
+  
+    let recurse = function (promise, start, end) {  
+      if (start >= maxSize) {
+        return promise;
+      }
+  
+      if (end > maxSize) {
+        end = maxSize;
+      }
+      
+      let next = promise.then(function() {
+        let chunkNumber = Math.ceil(end / sliceSize);
+        this.refs.uploadButton.normal("Uploading " + chunkNumber + "/" + maxChunks);
+        return callback(file.slice(start, end));
+      }.bind(this));
+        
+      return recurse(next, start + sliceSize, start + 2 * sliceSize);
+    }.bind(this);
+  
+    let finalPromise = recurse(Promise.resolve(), 0, sliceSize);
+    return finalPromise;
+  }
+
   render() {
     return (
       <div className={"file-upload-container " + this.props.className}>
@@ -130,65 +156,8 @@ class FileUpload extends React.Component {
 }
 
 
-function readFile(file, callback) {
-  let reader = new FileReader();
-
-  reader.onload = function(e) {
-      let data = e.target.result;
-      callback(data);
-  }
-
-  reader.readAsDataURL(file);
-}
-
 function encryptFile(data, password) {
   return CryptoJS.AES.encrypt(data, password);
-}
-
-function sendToServer(uuid, fileName, binary) {
-  let data = {
-    name: fileName.toString(),
-    base64Data: binary.toString()
-  };
-
-  return fetch("/api/file/store/" + uuid, {
-    headers: {"content-type": "application/json"},
-    body: JSON.stringify(data),
-    method: "POST"
-  });
-}
-
-function forEachSlice(file, callback) {
-  const sliceSize = 1024 * 1024; // 1 MB
-  const maxSize = file.size;  
-
-  console.log("Max size: " + maxSize);
-
-  let recurse = function (promise, start, end) {  
-    console.log(start + ":" + end);
-    if (start >= maxSize) {
-      return promise;
-    }
-
-    if (end > maxSize) {
-      end = maxSize;
-    }
-    
-    let next = promise.then(function() {
-      console.log(file.slice(start, end));
-      console.log("callback " + start + ":" + end)      
-      return callback(file.slice(start, end));
-    });
-  
-    console.log(next);
-  
-    return recurse(next, start + sliceSize, start + 2 * sliceSize);
-  }
-
-  let finalPromise = recurse(Promise.resolve(), 0, sliceSize);
-  console.log("finalPromise");
-  console.log(finalPromise);
-  return finalPromise;
 }
 
 function newChunkedFile(uuid, name) {
@@ -201,7 +170,6 @@ function newChunkedFile(uuid, name) {
 }
 
 function appendChunk(uuid, base64Data) {
-  console.log("append");
   let data = { base64Data: base64Data };
   return fetch("/api/chunker/append/" + uuid, {
     headers: {"content-type": "application/json"},
@@ -218,7 +186,6 @@ function commitChunkedfile(uuid) {
 }
 
 function blobToBase64(blob) {
-  console.log("encode");
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(blob);

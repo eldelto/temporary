@@ -13,6 +13,7 @@ class FileDownload extends React.Component {
 
     this.keyPressHandler = this.keyPressHandler.bind(this);
     this.onChangeHandler = this.onChangeHandler.bind(this);
+    this.combineChunks = this.combineChunks.bind(this);
   }
   
   keyPressHandler(e) {
@@ -26,7 +27,6 @@ class FileDownload extends React.Component {
       let uuid = inputValues[0];
       let password = inputValues[1];      
       let name = "unnamed";
-      this.refs.downloadButton.disable("Downloading...");
       
       getName(uuid)
       .then(function(result) {
@@ -36,9 +36,9 @@ class FileDownload extends React.Component {
       .then(function() {
         return getChunkCount(uuid)
         .then(function(count) { 
-          return combineChunks(uuid, count);
-        })
-      })
+          return this.combineChunks(uuid, count);
+        }.bind(this))
+      }.bind(this))
       .then(function(data) {
         return decryptFile(data, password);
       })
@@ -63,6 +63,28 @@ class FileDownload extends React.Component {
     });
   }
 
+  combineChunks(uuid, count) {
+    let chunks = [];
+    let recurse = function (promise, index) {  
+      this.refs.downloadButton.disable("Downloading " + index + "/" + count);
+      if (index >= count) {
+        return Promise.resolve(chunks);
+      }
+      
+      let next = promise.then(function() {
+        return getChunk(uuid, index);
+      });
+        
+      return next.then(function(data) {
+        chunks.push(data);
+        return recurse(next, index + 1);
+      });
+    }.bind(this);
+  
+    let finalPromise = recurse(Promise.resolve(), 0, []);
+    return finalPromise;
+  }
+
   render() {
     return (
       <InputButton
@@ -78,18 +100,6 @@ class FileDownload extends React.Component {
     )
   }
 }
-
-function fetchFile(uuid) {
-  return fetch("/api/file/fetch/" + uuid)
-    .then(response => {
-      if (response.status !== 200) {
-        console.log("Call to '/api/file/fetch' failed with status: " + response.status);
-        return;
-      }
-
-      return response.json();
-    });
-} 
 
 function decryptData(data, password) {
   return CryptoJS.AES.decrypt(data, password).toString(CryptoJS.enc.Latin1);
@@ -156,34 +166,6 @@ function getChunk(uuid, index) {
   })
   .then(function(response) { return response.json() })
   .then(function(json) { return Promise.resolve(json.payload.data)});
-}
-
-function combineChunks(uuid, count) {
-  let chunks = [];
-  let recurse = function (promise, index) {  
-    console.log(index + ":" + count);
-    if (index >= count) {
-      return Promise.resolve(chunks);
-    }
-    
-    let next = promise.then(function() {
-      console.log("callback")
-      return getChunk(uuid, index);
-    });
-  
-    console.log(next);
-  
-    return next.then(function(data) {
-      //console.log(data);   
-      chunks.push(data);
-      return recurse(next, index + 1);
-    });
-  }
-
-  let finalPromise = recurse(Promise.resolve(), 0, []);
-  console.log("finalPromise");
-  console.log(finalPromise);
-  return finalPromise;
 }
 
 function chunkedFileToBlob(chunks) {
