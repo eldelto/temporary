@@ -1,30 +1,41 @@
 defmodule TemporaryServer.Storage do
-  use GenServer
-
   require Logger
 
   alias Chunker.ChunkedFile
 
   defstruct uuid: nil, 
             name: nil, 
-            path: nil, 
+            path: nil,
+            chunked_file: nil,
             create_date: DateTime.utc_now(), 
             downloaded_chunks: []
 
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, :ok, [name: __MODULE__] ++ opts)
-  end
-
   def new(uuid, name) do
-    GenServer.call(__MODULE__, {:new, uuid, name})
+    storage_path = path(uuid)
+    case store(uuid, name, storage_path) do
+      {:ok, true} -> {:ok, true}
+      {:error, false} -> {:error, "File already exists."}
+      _ -> {:error, "Error while creating chunked file."}
+    end
   end
 
   def append(uuid, data) do
-    GenServer.call(__MODULE__, {:append, uuid, data})
+    with  {:ok, storable} <- get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable) do
+      ChunkedFile.append_chunk(chunked_file, data)      
+    else
+      err -> err
+    end
   end
 
   def commit(uuid) do
-    GenServer.call(__MODULE__, {:commit, uuid})
+    with  {:ok, storable} <- get(uuid),
+          {:ok, chunked_file} <- chunked_file_from_storable(storable),
+          {:ok, _} <- ChunkedFile.commit(chunked_file) do
+      ChunkedFile.remove(chunked_file)      
+    else
+      _ -> {:error, "Error while committing chunked file."}
+    end
   end
 
   def get_chunk(uuid, index) do
@@ -83,51 +94,17 @@ defmodule TemporaryServer.Storage do
     end
   end
 
-  def init(:ok) do
-    {:ok, %{}}
-  end
-
-  def handle_call({:new, uuid, name}, _from, state) do
-    storage_path = path(uuid)
-    with  {:ok, true} <- store(uuid, name, storage_path),
-          {:ok, _} <- chunked_file_from_uuid(uuid) do
-      {:reply, {:ok, nil}, state}
-    else
-      {:error, false} -> {:reply, {:error, "File already exists."}, state}
-      _ -> {:reply, {:error, "Error while creating chunked file."}, state}
-    end    
-  end
-
-  def handle_call({:append, uuid, data}, _from, state) do
-    with  {:ok, storable} <- get(uuid),
-          {:ok, chunked_file} <- chunked_file_from_storable(storable),
-          {:ok, _} <- ChunkedFile.append_chunk(chunked_file, data) do
-      {:reply, {:ok, nil}, state}
-    else
-      _ -> {:reply, {:error, "Error while appending chunk."}, state}
-    end
-  end
-
-  def handle_call({:commit, uuid}, _from, state) do
-    with  {:ok, storable} <- get(uuid),
-          {:ok, chunked_file} <- chunked_file_from_storable(storable),
-          {:ok, _} <- ChunkedFile.commit(chunked_file),
-          {:ok, _} <- ChunkedFile.remove(chunked_file) do
-      {:reply, {:ok, nil}, state}
-    else
-      _ -> {:reply, {:error, "Error while committing chunked file."}, state}
-    end
-  end
-
+  ## Helper functions ##
   defp store(uuid, name, path) do
-    storable = %__MODULE__{uuid: uuid, name: name, path: path}
-    case :ets.insert_new(:file_storage, {uuid, storable}) do
-      true ->
-        {:ok, true}
-      false ->
-        {:error, false}
+    with {:ok, chunked_file} <- new_chunked_file(path),
+         storable <- %__MODULE__{uuid: uuid, name: name, 
+                                path: path, chunked_file: chunked_file},
+         true <- :ets.insert_new(:file_storage, {uuid, storable}) do
+      {:ok, true}
+    else
+      false -> {:error, false}
       err -> err      
-    end
+    end    
   end
 
   defp add_downloaded_chunk(storable, index) do
@@ -143,13 +120,13 @@ defmodule TemporaryServer.Storage do
     end
   end
 
-  defp chunked_file_from_uuid(uuid) do
-    storage_path = path(uuid)
-    Chunker.new(storage_path)
-  end
-
   defp chunked_file_from_storable(storable) do
-    Chunker.new(storable.path, 1_864_216)
+    if ChunkedFile.closed?(storable.chunked_file) do
+      new_chunked_file(storable.path)
+    else
+      {:ok, storable.chunked_file}
+    end
+    
   end
 
   defp remove_chunked_file(chunked_file) do
@@ -162,5 +139,9 @@ defmodule TemporaryServer.Storage do
       :ok -> {:ok, nil}  
       err -> err
     end
+  end
+
+  defp new_chunked_file(path) do
+    Chunker.new(path, 1_864_216)
   end
 end
