@@ -1,12 +1,11 @@
-- Implement chunked upload.
+# Implement chunked upload.
   # Server
-  - Client
-- Implement chunked download.
+  # Client
+# Implement chunked download.
   # Server
-  - Client
+  # Client
 # Prevent download of uncommitted chunked files.
 # Clean up job for chunked files.
-- Create Storage GenServer to handle ChunkedFile operations sequentially.
 - Use custom exceptions in error tuple.
 - Add specs?
 - Add tests?
