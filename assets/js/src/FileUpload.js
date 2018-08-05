@@ -76,12 +76,20 @@ class FileUpload extends React.Component {
   }
 
   copyToClipboard(text) {
-    var textArea = document.createElement("textarea");
+    let textArea = document.createElement("textarea");
     textArea.className = "hidden";
     textArea.value = text;
+    textArea.contentEditable = true;
+    textArea.readOnly = false;    
     document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
+
+    let range = document.createRange();
+    range.selectNodeContents(textArea);
+
+    let s = window.getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+    textArea.setSelectionRange(0, 999999);
 
     let noError = document.execCommand('copy');
     textArea.remove();

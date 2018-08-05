@@ -45,10 +45,10 @@ defmodule TemporaryServer.Storage do
           {:ok, data} <- ChunkedFile.chunk(chunked_file, index),
           {:ok, storable} <- add_downloaded_chunk(storable, index) do
       {:ok, chunks} = ChunkedFile.chunks(chunked_file)
-      if length(storable.downloaded_chunks) == length(chunks) do
-        {:ok, _} = remove(storable)
-        Logger.info("Removed #{inspect storable.uuid}")
-      end      
+      #if length(storable.downloaded_chunks) == length(chunks) do
+      #  {:ok, _} = remove(storable)
+      #  Logger.info("Removed #{inspect storable.uuid}")
+      #end      
       {:ok, data}
     else
       err -> err
