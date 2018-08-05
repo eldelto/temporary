@@ -203,8 +203,7 @@ input.button::placeholder {
 
 #version {
   color: white;
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+  width: 100%;
+  text-align: center;
 }
