@@ -200,3 +200,11 @@ input.button::placeholder {
   padding: 0 !important;
   overflow: hidden !important;
 }
+
+#version {
+  color: white;
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
+}
