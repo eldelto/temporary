@@ -19,15 +19,6 @@ defmodule TemporaryServerWeb.Router do
     get "/", PageController, :index
   end
 
-  scope "/api/file", TemporaryServerWeb do
-     pipe_through :api
-
-     get "/test", FileController, :test
-     post "/store/:uuid", FileController, :store
-     get "/info/:uuid", FileController, :info
-     get "/fetch/:uuid", FileController, :fetch
-  end
-
   scope "/api/chunker", TemporaryServerWeb do    
     post "/new/:uuid", ChunkerController, :new
     post "/append/:uuid", ChunkerController, :append
