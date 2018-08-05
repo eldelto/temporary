@@ -11,6 +11,7 @@ class FileUpload extends React.Component {
     this.initUploadFile = this.initUploadFile.bind(this);
     this.uploadFile = this.uploadFile.bind(this);
     this.copyToClipboard = this.copyToClipboard.bind(this);
+    this.copyToClipboardIOS = this.copyToClipboardIOS.bind(this);
     this.reset = this.reset.bind(this);
     this.forEachSlice = this.forEachSlice.bind(this);
 
@@ -64,7 +65,10 @@ class FileUpload extends React.Component {
         this.setState({
           buttonText: "Copy ID",
           enabled: true,
-          clickHandler: () => this.copyToClipboard(uuid + ":" + password)
+          clickHandler: () => {
+            this.copyToClipboard(uuid + ":" + password);
+            this.copyToClipboardIOS(uuid + ":" + password);
+          }
         })
       }.bind(this))
       .catch(function(error) {
@@ -76,6 +80,24 @@ class FileUpload extends React.Component {
   }
 
   copyToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.className = "hidden";
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    let noError = document.execCommand('copy');
+    textArea.remove();
+    if (noError) {
+      return this.refs.uploadButton.success();
+    } else {
+      this.props.onError();
+      return this.refs.uploadButton.error();
+    }
+  }
+
+  copyToClipboardIOS(text) {
     let textArea = document.createElement("textarea");
     textArea.className = "hidden";
     textArea.value = text;
