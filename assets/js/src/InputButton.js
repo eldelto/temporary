@@ -91,12 +91,16 @@ class InputButton extends React.Component {
   render() {
     return (
       <input
+        ref="input"
         className={this.props.className  + " " + this.state.buttonModifier + " " + (this.state.isButton ? "button" : "input")}
         type="text"
         placeholder={this.state.messageText ? this.state.messageText : 
           (this.state.isButton ? this.state.buttonText : this.props.inputText)}
         readOnly={this.state.isButton}
-        onClick={() => this.setState({ isButton: false })}
+        onClick={() => {
+          this.setState({ isButton: false });
+          this.refs.input.focus();
+        }}
         onBlur={() => this.setState({ isButton: true, inputValue: "" })}
         onKeyPress={this.props.onKeyPress}
         value={this.state.inputValue} 
