@@ -2,13 +2,13 @@
     font-family: 'Notalot';
     font-style: normal;
     font-weight: 400;
-    src: url('/fonts/notalot35.regular.eot'); /* IE9 Compat Modes */
+    src: url('../fonts/notalot35.regular.eot'); /* IE9 Compat Modes */
     src: local('Notalot'), local('Notalot'),
-         url('/fonts/notalot35.regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-         url('/fonts/notalot35.regular.woff2') format('woff2'), /* Super Modern Browsers */
-         url('/fonts/Notalot35.woff') format('woff'), /* Modern Browsers */
-         url('/fonts/Notalot35.ttf') format('truetype'), /* Safari, Android, iOS */
-         url('/fonts/Notalot35.svg#OpenSans') format('svg'); /* Legacy iOS */
+         url('../fonts/notalot35.regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../fonts/notalot35.regular.woff2') format('woff2'), /* Super Modern Browsers */
+         url('../fonts/Notalot35.woff') format('woff'), /* Modern Browsers */
+         url('../fonts/Notalot35.ttf') format('truetype'), /* Safari, Android, iOS */
+         url('../fonts/Notalot35.svg#OpenSans') format('svg'); /* Legacy iOS */
 }
 
 body {
