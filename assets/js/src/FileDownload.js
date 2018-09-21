@@ -2,6 +2,7 @@ import React from 'react';
 import CryptoJS from 'crypto-js';
 
 import InputButton from './InputButton.js';
+import { API_ROOT } from './api-config.js';
 
 class FileDownload extends React.Component {
   constructor(props) {
@@ -142,7 +143,7 @@ function dataURIToBlob(dataURI) {
 }
 
 function getName(uuid) {
-  return fetch("/api/chunker/name/" + uuid, {
+  return fetch(API_ROOT + "/api/chunker/name/" + uuid, {
     headers: {"content-type": "application/json"},
     method: "GET"
   })
@@ -151,7 +152,7 @@ function getName(uuid) {
 }
 
 function getChunkCount(uuid) {
-  return fetch("/api/chunker/length/" + uuid, {
+  return fetch(API_ROOT + "/api/chunker/length/" + uuid, {
     headers: {"content-type": "application/json"},
     method: "GET"
   })
@@ -160,7 +161,7 @@ function getChunkCount(uuid) {
 }
 
 function getChunk(uuid, index) {
-  return fetch("/api/chunker/chunk/" + index + "/" + uuid, {
+  return fetch(API_ROOT + "/api/chunker/chunk/" + index + "/" + uuid, {
     headers: {"content-type": "application/json"},
     method: "GET"
   })

@@ -3,6 +3,7 @@ import CryptoJS from 'crypto-js';
 import crypto from 'crypto';
 
 import Button from './Button.js';
+import { API_ROOT } from './api-config.js';
 
 class FileUpload extends React.Component {
   constructor(props) {
@@ -192,7 +193,7 @@ function encryptFile(data, password) {
 
 function newChunkedFile(uuid, name) {
   let data = { name: name };
-  return fetch("/api/chunker/new/" + uuid, {
+  return fetch(API_ROOT + "/api/chunker/new/" + uuid, {
     headers: {"content-type": "application/json"},
     body: JSON.stringify(data),
     method: "POST"
@@ -201,7 +202,7 @@ function newChunkedFile(uuid, name) {
 
 function appendChunk(uuid, base64Data) {
   let data = { base64Data: base64Data };
-  return fetch("/api/chunker/append/" + uuid, {
+  return fetch(API_ROOT + "/api/chunker/append/" + uuid, {
     headers: {"content-type": "application/json"},
     body: JSON.stringify(data),
     method: "POST"
@@ -209,7 +210,7 @@ function appendChunk(uuid, base64Data) {
 }
 
 function commitChunkedfile(uuid) {
-  return fetch("/api/chunker/commit/" + uuid, {
+  return fetch(API_ROOT + "/api/chunker/commit/" + uuid, {
     headers: {"content-type": "application/json"},
     method: "POST"
   });
