@@ -22,7 +22,7 @@ defmodule TemporaryServerWeb.PageController do
         ]
       {:error, message} -> 
         Logger.error(message)
-        render conn, "download_error.html"
+        render conn, "download_error.html", uuid: uuid
     end   
   end
 

@@ -17,9 +17,12 @@
   # Counter
   # Download button
   # Custom error toasts
+  - File not found page
 
-- Use CSS variables
+# Version number
+# Use CSS variables
 
 - Use custom exceptions in error tuple.
+
 - Add specs?
 - Add tests?

@@ -1,0 +1,7 @@
+<div class="heading">
+  <h1>File not found</h1>
+  <p>A file with UUID "<%= @uuid %>" does not exist.</p>    
+</div>
+<div class="content">  
+  <a class="button" href="<%= page_path @conn, :index %>">Back</a>
+</div>

@@ -16,6 +16,7 @@
       <main role="main">
         <%= render @view_module, @view_template, assigns %>
 
+        <div id="version"><%= version() %></div>
         <div id="toast" class="toast error out-of-screen"></div>
       </main>
 
