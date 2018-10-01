@@ -6,6 +6,20 @@
   # Client
 # Prevent download of uncommitted chunked files.
 # Clean up job for chunked files.
+
+# Upload view
+  # Progress bar
+  # Custom error toasts
+  # Counter
+  # Copy link
+
+# Download view
+  # Counter
+  # Download button
+  # Custom error toasts
+
+- Use CSS variables
+
 - Use custom exceptions in error tuple.
 - Add specs?
 - Add tests?

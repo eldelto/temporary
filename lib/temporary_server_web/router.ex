@@ -16,7 +16,8 @@ defmodule TemporaryServerWeb.Router do
   scope "/", TemporaryServerWeb do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", PageController, :index    
+    get "/download", PageController, :download
   end
 
   scope "/api/chunker", TemporaryServerWeb do    

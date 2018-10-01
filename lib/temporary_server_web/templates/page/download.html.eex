@@ -1,0 +1,9 @@
+<div class="heading">
+  <h1 id="countdown" timestamp-data="<%= @timestamp %>"></h1>
+  <p>until your file will be deleted.</p>    
+</div>
+<div class="content">
+  <p id="filename"><%= @filename %></p>
+  <button id="download-button">Download</button>
+  <a class="button" href="<%= page_path @conn, :index %>">Back</a>
+</div>

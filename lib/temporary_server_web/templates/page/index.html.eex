@@ -1,2 +1,23 @@
-<div id="root"></div>
-<div id="version">0.5.4</div>
+<div id="upload-view">
+  <div class="heading">
+    <h1>Temporary</h1>
+    <p>Your temporary file storage.</p>
+  </div>
+  <div class="content">
+    <div class="file-upload-container">
+      <button id="store-file-button">Store file</button>
+      <input id="store-file-input" style="display: none;" type="file">
+    </div>
+  </div>
+</div>
+<div id="copy-link-view" class="out-of-screen">
+  <div class="heading">
+    <h1 id="countdown">Countdown</h1>
+    <p>until your file will be deleted.</p>    
+  </div>
+  <div class="content">
+    <textarea rows=5 readonly id="download-link"></textarea>
+    <button id="copy-link-button">Copy link</button>
+    <button id="back-button">Back</button>
+  </div>
+</div>

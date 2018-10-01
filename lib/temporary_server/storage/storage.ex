@@ -7,7 +7,7 @@ defmodule TemporaryServer.Storage do
             name: nil, 
             path: nil,
             chunked_file: nil,
-            create_date: DateTime.utc_now(), 
+            create_date: nil, 
             downloaded_chunks: []
 
   def new(uuid, name) do
@@ -97,8 +97,11 @@ defmodule TemporaryServer.Storage do
   ## Helper functions ##
   defp store(uuid, name, path) do
     with {:ok, chunked_file} <- new_chunked_file(path),
-         storable <- %__MODULE__{uuid: uuid, name: name, 
-                                path: path, chunked_file: chunked_file},
+         storable <- %__MODULE__{
+           uuid: uuid, name: name, 
+            path: path, chunked_file: chunked_file,
+            create_date: DateTime.utc_now()
+          },
          true <- :ets.insert_new(:file_storage, {uuid, storable}) do
       {:ok, true}
     else
