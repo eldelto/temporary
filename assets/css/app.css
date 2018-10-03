@@ -165,7 +165,6 @@ input.button::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #786abd;
   flex-direction: column;
   box-sizing: border-box;
   flex: 1;
