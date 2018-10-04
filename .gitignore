@@ -28,3 +28,4 @@ npm-debug.log
 
 file_storage/*
 docker_images/*
+Mnesia.*

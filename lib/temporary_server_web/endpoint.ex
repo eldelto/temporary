@@ -54,6 +54,8 @@ defmodule TemporaryServerWeb.Endpoint do
     create_storage_dir()
     clear_file_storage()
 
+    #init_mnesia()
+
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
       {:ok, Keyword.put(config, :http, [:inet6, port: port])}
@@ -72,5 +74,11 @@ defmodule TemporaryServerWeb.Endpoint do
 
   defp clear_file_storage() do
     :os.cmd(to_charlist("rm -rf " <> Storage.path("*")))
+  end
+
+  defp init_mnesia() do
+    :mnesia.create_schema([node()])
+    :ok = :mnesia.start()
+    :mnesia.create_table(:file_storage, [attributes: [:uuid, :storable]])
   end
 end

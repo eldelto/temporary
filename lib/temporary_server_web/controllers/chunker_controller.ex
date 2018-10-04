@@ -4,8 +4,7 @@ defmodule TemporaryServerWeb.ChunkerController do
   require Logger
 
   alias TemporaryServer.Message
-  alias TemporaryServer.Storage
-  alias Chunker.ChunkedFile
+  alias TemporaryServer.Storage  
 
   # TODO: proper error handling for different failures.
   

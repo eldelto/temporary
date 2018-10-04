@@ -1,8 +1,6 @@
 defmodule TemporaryServer.Storage do
   require Logger
 
-  alias Chunker.ChunkedFile
-
   defstruct uuid: nil, 
             name: nil, 
             path: nil,
@@ -22,7 +20,7 @@ defmodule TemporaryServer.Storage do
   def append(uuid, data) do
     with  {:ok, storable} <- get(uuid),
           {:ok, chunked_file} <- chunked_file_from_storable(storable) do
-      ChunkedFile.append_chunk(chunked_file, data)      
+      Chunker.append_chunk(chunked_file, data)      
     else
       err -> err
     end
@@ -31,8 +29,9 @@ defmodule TemporaryServer.Storage do
   def commit(uuid) do
     with  {:ok, storable} <- get(uuid),
           {:ok, chunked_file} <- chunked_file_from_storable(storable),
-          {:ok, _} <- ChunkedFile.commit(chunked_file) do
-      ChunkedFile.remove(chunked_file)      
+          {:ok, path} <- Chunker.commit(chunked_file),
+          :ok <- Chunker.remove(chunked_file) do
+      {:ok, path}
     else
       _ -> {:error, "Error while committing chunked file."}
     end
@@ -41,10 +40,10 @@ defmodule TemporaryServer.Storage do
   def get_chunk(uuid, index) do
     with  {:ok, storable} <- get(uuid),
           {:ok, chunked_file} <- chunked_file_from_storable(storable),
-          false <- ChunkedFile.writeable?(chunked_file),
-          {:ok, data} <- ChunkedFile.chunk(chunked_file, index),
+          false <- Chunker.writeable?(chunked_file),
+          {:ok, data} <- Chunker.chunk(chunked_file, index),
           {:ok, storable} <- add_downloaded_chunk(storable, index) do
-      {:ok, chunks} = ChunkedFile.chunks(chunked_file)
+      {:ok, chunks} = Chunker.chunks(chunked_file)
       #if length(storable.downloaded_chunks) == length(chunks) do
       #  {:ok, _} = remove(storable)
       #  Logger.info("Removed #{inspect storable.uuid}")
@@ -73,7 +72,7 @@ defmodule TemporaryServer.Storage do
   def chunk_count(uuid) do
     with  {:ok, storable} <- get(uuid),
           {:ok, chunked_file} <- chunked_file_from_storable(storable),
-          {:ok, chunks} <- ChunkedFile.chunks(chunked_file) do
+          {:ok, chunks} <- Chunker.chunks(chunked_file) do
       {:ok, length(chunks)}
     else
       err -> err
@@ -124,7 +123,7 @@ defmodule TemporaryServer.Storage do
   end
 
   defp chunked_file_from_storable(storable) do
-    if ChunkedFile.closed?(storable.chunked_file) do
+    if Chunker.closed?(storable.chunked_file) do
       new_chunked_file(storable.path)
     else
       {:ok, storable.chunked_file}
@@ -133,11 +132,11 @@ defmodule TemporaryServer.Storage do
   end
 
   defp remove_chunked_file(chunked_file) do
-    if ChunkedFile.writeable?(chunked_file) do
-      ChunkedFile.remove(chunked_file)
+    if Chunker.writeable?(chunked_file) do
+      Chunker.remove(chunked_file)
     end
 
-    path = ChunkedFile.path(chunked_file)    
+    path = Chunker.path(chunked_file)    
     case File.rm(path) do      
       :ok -> {:ok, nil}  
       err -> err
@@ -145,6 +144,6 @@ defmodule TemporaryServer.Storage do
   end
 
   defp new_chunked_file(path) do
-    Chunker.new(path, 1_864_216)
+    Chunker.DiscBased.new(path, 1_864_216)
   end
 end
