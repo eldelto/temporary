@@ -87,7 +87,7 @@ defmodule TemporaryServer.Storage do
     with {:ok, storable} <- get(uuid),
         {:ok, chunked_file} <- chunked_file_from_storable(storable),
         true <- :ets.delete(:file_storage, uuid) do
-      remove_chunked_file(chunked_file)
+      Chunker.remove(chunked_file)
     else
       err -> err
     end
@@ -129,18 +129,6 @@ defmodule TemporaryServer.Storage do
       {:ok, storable.chunked_file}
     end
     
-  end
-
-  defp remove_chunked_file(chunked_file) do
-    if Chunker.writeable?(chunked_file) do
-      Chunker.remove(chunked_file)
-    end
-
-    path = Chunker.path(chunked_file)    
-    case File.rm(path) do      
-      :ok -> {:ok, nil}  
-      err -> err
-    end
   end
 
   defp new_chunked_file(path) do
