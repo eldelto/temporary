@@ -6,24 +6,27 @@ defmodule TemporaryServerWeb.PageController do
   alias TemporaryServer.Storage
 
   def index(conn, _params) do
-    render conn, "index.html"
+    render(conn, "index.html")
   end
 
   def download(conn, %{"uuid" => uuid}) do
     case Storage.get(uuid) do
       {:ok, storable} ->
-        timestamp = storable.create_date
-        |> DateTime.to_unix()
-        |> timePlusDays(3)
-        |> Kernel.*(1000)
-        render conn, "download.html", [
-          filename: storable.name, 
+        timestamp =
+          storable.create_date
+          |> DateTime.to_unix()
+          |> timePlusDays(3)
+          |> Kernel.*(1000)
+
+        render(conn, "download.html",
+          filename: storable.name,
           timestamp: timestamp
-        ]
-      {:error, message} -> 
+        )
+
+      {:error, message} ->
         Logger.error(message)
-        render conn, "download_error.html", uuid: uuid
-    end   
+        render(conn, "download_error.html", uuid: uuid)
+    end
   end
 
   defp timePlusDays(time, days) do

@@ -4,11 +4,11 @@ defmodule TemporaryServer.Mixfile do
   def project do
     [
       app: :temporary_server,
-      version: "0.6.2",
+      version: "0.6.3",
       elixir: "~> 1.6",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
   end
@@ -25,7 +25,7 @@ defmodule TemporaryServer.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -39,6 +39,7 @@ defmodule TemporaryServer.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5", runtime: false},
+      {:mix_test_watch, "~> 0.6", only: :dev, runtime: false},
       {:chunker, git: "https://gitlab.com/eldelto/chunker.git"}
     ]
   end
