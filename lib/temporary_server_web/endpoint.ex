@@ -55,7 +55,7 @@ defmodule TemporaryServerWeb.Endpoint do
   configuration should be loaded from the system environment.
   """
   def init(_key, config) do
-    create_ets()
+    # create_ets()
     create_storage_dir()
     clear_file_storage()
 
@@ -79,11 +79,5 @@ defmodule TemporaryServerWeb.Endpoint do
 
   defp clear_file_storage() do
     :os.cmd(to_charlist("rm -rf " <> Storage.path("*")))
-  end
-
-  defp init_mnesia() do
-    :mnesia.create_schema([node()])
-    :ok = :mnesia.start()
-    :mnesia.create_table(:file_storage, attributes: [:uuid, :storable])
   end
 end

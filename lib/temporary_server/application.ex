@@ -9,10 +9,8 @@ defmodule TemporaryServer.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(TemporaryServerWeb.Endpoint, []),
-      worker(TemporaryServer.Storage.Cleanup, [])
-      # Start your own worker by calling: TemporaryServer.Worker.start_link(arg1, arg2, arg3)
-      # worker(TemporaryServer.Worker, [arg1, arg2, arg3]),
+      supervisor(TemporaryServerWeb.Endpoint, [])
+      # worker(TemporaryServer.Storage.Cleanup, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
