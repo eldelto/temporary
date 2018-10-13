@@ -1,15 +1,13 @@
 defmodule TemporaryServerWeb.ChunkerController do
   use TemporaryServerWeb, :controller
 
-  require Logger
-
   alias TemporaryServer.Message
-  alias TemporaryServer.Storage
+  alias TemporaryServer.Storable
 
   # TODO: proper error handling for different failures.
 
   def new(conn, %{"uuid" => uuid, "name" => name}) do
-    case Storage.new(uuid, name) do
+    case Storable.new(uuid, name) do
       {:ok, _} -> json(conn, Message.success("New chunked file successfully created."))
       {:error, msg} -> json(conn, Message.error(msg))
     end
@@ -23,8 +21,10 @@ defmodule TemporaryServerWeb.ChunkerController do
         "uuid" => uuid,
         "base64Data" => base_64_data
       }) do
-    case Storage.append(uuid, base_64_data) do
-      {:ok, _} -> json(conn, Message.success("Chunk successfully appended."))
+    with {:ok, storable} <- Storable.fetch_entry(uuid),
+         {:ok, _} <- Chunker.append_chunk(storable, base_64_data) do
+      json(conn, Message.success("Chunk successfully appended."))
+    else
       {:error, msg} -> json(conn, Message.error(msg))
     end
   end
@@ -34,14 +34,16 @@ defmodule TemporaryServerWeb.ChunkerController do
   end
 
   def commit(conn, %{"uuid" => uuid}) do
-    case Storage.commit(uuid) do
-      {:ok, _} -> json(conn, Message.success("Chunked file successfully committed."))
+    with {:ok, storable} <- Storable.fetch_entry(uuid),
+         {:ok, _} <- Chunker.commit(storable) do
+      json(conn, Message.success("Chunked file successfully committed."))
+    else
       {:error, msg} -> json(conn, Message.error(msg))
     end
   end
 
   def name(conn, %{"uuid" => uuid}) do
-    case Storage.get(uuid) do
+    case Storable.fetch_entry(uuid) do
       {:ok, storable} ->
         json(
           conn,
@@ -51,31 +53,30 @@ defmodule TemporaryServerWeb.ChunkerController do
           )
         )
 
-      {:error, message} ->
-        Logger.error(message)
-        json(conn, Message.error("Error while fetching chunked file length."))
+      {:error, msg} ->
+        json(conn, Message.error(msg))
     end
   end
 
   def length(conn, %{"uuid" => uuid}) do
-    case Storage.chunk_count(uuid) do
-      {:ok, length} ->
-        json(
-          conn,
-          Message.success(
-            "Successfully fetched chunked file length.",
-            %{"length" => length}
-          )
+    with {:ok, storable} <- Storable.fetch_entry(uuid),
+         {:ok, length} <- Chunker.length(storable) do
+      json(
+        conn,
+        Message.success(
+          "Successfully fetched chunked file length.",
+          %{"length" => length}
         )
-
-      {:error, _} ->
-        json(conn, Message.error("Error while fetching chunked file length."))
+      )
+    else
+      {:error, msg} -> json(conn, Message.error(msg))
     end
   end
 
   def get_chunk(conn, %{"uuid" => uuid, "index" => index}) do
     with {index, _} <- Integer.parse(index),
-         {:ok, data} <- Storage.get_chunk(uuid, index) do
+         {:ok, storable} <- Storable.fetch_entry(uuid),
+         {:ok, data} <- Chunker.chunk(storable, index) do
       json(
         conn,
         Message.success(
@@ -85,7 +86,7 @@ defmodule TemporaryServerWeb.ChunkerController do
       )
     else
       true -> json(conn, Message.error("Chunked file is not committed yet."))
-      _ -> json(conn, Message.error("Error while fetching chunk."))
+      {:error, msg} -> json(conn, Message.error(msg))
     end
   end
 end

@@ -1,7 +1,7 @@
 defmodule TemporaryServerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :temporary_server
 
-  alias TemporaryServer.Storage
+  alias TemporaryServer.Storable
 
   socket("/socket", TemporaryServerWeb.UserSocket)
 
@@ -56,10 +56,10 @@ defmodule TemporaryServerWeb.Endpoint do
   """
   def init(_key, config) do
     # create_ets()
-    create_storage_dir()
-    clear_file_storage()
+    :ok = create_storage_dir()
+    {:ok, _} = Storable.init_mnesia()
 
-    # init_mnesia()
+    # clear_file_storage()
 
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
@@ -74,10 +74,14 @@ defmodule TemporaryServerWeb.Endpoint do
   end
 
   defp create_storage_dir do
-    File.mkdir(Storage.path())
+    path = Storable.storage_path()
+    case File.exists?(path) do
+      true -> :ok
+      false -> File.mkdir(Storable.storage_path())
+    end
   end
 
   defp clear_file_storage() do
-    :os.cmd(to_charlist("rm -rf " <> Storage.path("*")))
+    :os.cmd(to_charlist("rm -rf " <> Storable.storage_path() <> "/*"))
   end
 end

@@ -3,14 +3,14 @@ defmodule TemporaryServerWeb.PageController do
 
   require Logger
 
-  alias TemporaryServer.Storage
+  alias TemporaryServer.Storable
 
   def index(conn, _params) do
     render(conn, "index.html")
   end
 
   def download(conn, %{"uuid" => uuid}) do
-    case Storage.get(uuid) do
+    case Storable.fetch_entry(uuid) do
       {:ok, storable} ->
         timestamp =
           storable.create_date

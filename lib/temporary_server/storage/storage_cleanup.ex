@@ -5,10 +5,12 @@ defmodule TemporaryServer.Storage.Cleanup do
 
   require Logger
 
+  ## Client ##
   def start_link do
     GenServer.start_link(__MODULE__, [])
   end
 
+  ## Server ##
   def init(state) do
     # Schedule work to be performed at some point
     schedule_work()
@@ -23,13 +25,15 @@ defmodule TemporaryServer.Storage.Cleanup do
     {:noreply, state}
   end
 
+  ## Helper functions ##
   defp schedule_work() do
     # Every 5 minutes
     Process.send_after(self(), :work, 5 * 60 * 1000)
   end
 
   defp remove_old_files(table) do
-    now = DateTime.to_unix(DateTime.utc_now())
+    now = DateTime.utc_now()
+    |> DateTime.to_unix()
 
     :ets.foldl(
       fn item, _ ->
@@ -45,5 +49,13 @@ defmodule TemporaryServer.Storage.Cleanup do
 
     Logger.debug("Storage.Cleanup finished run.")
     {:ok, nil}
+  end
+
+  defp older_than_three_days?(date_time) do
+    now = DateTime.utc_now()
+    |> DateTime.to_unix()
+    timestamp = DateTime.to_unix(date_time)
+
+    timestamp + 3 * 24 * 60 * 60 < now
   end
 end

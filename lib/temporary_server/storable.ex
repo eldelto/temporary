@@ -1,17 +1,9 @@
 defmodule TemporaryServer.Storable do
-  defmodule AlreadyExistsError do
-    defexception message: nil
-
-    def exception(uuid) do
-      %__MODULE__{message: "Entry with uuid '#{inspect uuid}' already exists."}
-    end
-  end
-
   defmodule NotFoundError do
     defexception message: nil
 
     def exception(uuid) do
-      %__MODULE__{message: "Entry with uuid '#{inspect uuid}' could not be found."}
+      %__MODULE__{message: "Entry with uuid '#{inspect(uuid)}' could not be found."}
     end
   end
 
@@ -33,7 +25,7 @@ defmodule TemporaryServer.Storable do
     :mnesia.create_table(
       @mnesia_name,
       disc_copies: [node()],
-      attributes: [:uuid, :storable],
+      attributes: [:uuid, :create_date, :storable],
       type: :set
     )
 
@@ -53,7 +45,12 @@ defmodule TemporaryServer.Storable do
 
   def store_entry(storable) do
     case :mnesia.transaction(fn ->
-           :mnesia.write({@mnesia_name, storable.uuid, storable})
+           :mnesia.write({
+             @mnesia_name, 
+             storable.uuid, 
+             storable.create_date, 
+             storable
+            })
          end) do
       {:atomic, :ok} -> {:ok, storable}
       err -> err
@@ -81,7 +78,7 @@ defmodule TemporaryServer.Storable do
   ## Helper functions ##
   defp create_new_storable(uuid, name) do
     with storage_path <- path_from_uuid(uuid),
-         {:ok, chunked_file} <- DiscBased.new(storage_path),
+         {:ok, chunked_file} <- DiscBased.new(storage_path, 1_864_216),
          storable <- %__MODULE__{
            uuid: uuid,
            name: name,
@@ -110,8 +107,28 @@ defimpl Chunker.ChunkedFile, for: TemporaryServer.Storable do
     update_storable(chunked_file, fn x -> Chunker.commit(x) end)
   end
 
+  def chunk(chunked_file, index) do
+    Chunker.chunk(chunked_file.chunked_file, index)
+  end
+
+  def length(chunked_file) do
+    Chunker.length(chunked_file.chunked_file)
+  end
+
+  def writeable?(chunked_file) do
+    Chunker.writeable?(chunked_file.chunked_file)
+  end
+
+  def close(chunked_file) do
+    Chunker.close(chunked_file.chunked_file)
+  end
+
+  def closed?(chunked_file) do
+    Chunker.closed?(chunked_file.chunked_file)
+  end
+
   ## Helper functions ##
-  defp update_chunked_file(storable, callback) do    
+  defp update_chunked_file(storable, callback) do
     case callback.(storable.chunked_file) do
       {:ok, _} -> {:ok, storable}
       err -> err
@@ -120,9 +137,11 @@ defimpl Chunker.ChunkedFile, for: TemporaryServer.Storable do
 
   defp update_storable(storable, callback) do
     case callback.(storable.chunked_file) do
-      {:ok, chunked_file} -> 
-        Storable.store_entry(%Storable{storable|chunked_file: chunked_file})
-      err -> err
+      {:ok, chunked_file} ->
+        Storable.store_entry(%Storable{storable | chunked_file: chunked_file})
+
+      err ->
+        err
     end
   end
 end
