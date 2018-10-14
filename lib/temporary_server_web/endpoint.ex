@@ -55,11 +55,8 @@ defmodule TemporaryServerWeb.Endpoint do
   configuration should be loaded from the system environment.
   """
   def init(_key, config) do
-    # create_ets()
     :ok = create_storage_dir()
     {:ok, _} = Storable.init_mnesia()
-
-    # clear_file_storage()
 
     if config[:load_from_system_env] do
       port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
@@ -69,19 +66,12 @@ defmodule TemporaryServerWeb.Endpoint do
     end
   end
 
-  defp create_ets() do
-    :ets.new(:file_storage, [:set, :public, :named_table])
-  end
-
   defp create_storage_dir do
     path = Storable.storage_path()
+
     case File.exists?(path) do
       true -> :ok
       false -> File.mkdir(Storable.storage_path())
     end
-  end
-
-  defp clear_file_storage() do
-    :os.cmd(to_charlist("rm -rf " <> Storable.storage_path() <> "/*"))
   end
 end

@@ -14,7 +14,6 @@ defmodule TemporaryServerWeb.PageController do
       {:ok, storable} ->
         timestamp =
           storable.create_date
-          |> DateTime.to_unix()
           |> timePlusDays(3)
           |> Kernel.*(1000)
 

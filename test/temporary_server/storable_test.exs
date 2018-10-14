@@ -79,12 +79,14 @@ defmodule TemporaryServer.StorableTest do
     assert true === Chunker.writeable?(chunked_file)
   end
 
-  @tag :skip
   test "removing ChunkedFile" do
     chunked_file = new_chunked_file()
 
     assert :ok = Chunker.remove(chunked_file)
-    # assert {:error, :enoent} = File.stat(@writeable_file_path)
+    assert {:error, :enoent} = File.stat(chunked_file_path())
+
+    assert {:atomic, []} =
+             :mnesia.transaction(fn -> :mnesia.read(Storable.table_name(), @uuid) end)
   end
 
   test "closing ChunkedFile" do

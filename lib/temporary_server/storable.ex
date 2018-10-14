@@ -32,7 +32,7 @@ defmodule TemporaryServer.Storable do
     {:ok, @mnesia_name}
   end
 
-  def new(uuid, name) do
+  def new(uuid, name) when is_bitstring(uuid) and is_bitstring(name) do
     case fetch_entry(uuid) do
       {:error, %__MODULE__.NotFoundError{}} -> create_new_storable(uuid, name)
       result -> result
@@ -46,22 +46,22 @@ defmodule TemporaryServer.Storable do
   def store_entry(storable) do
     case :mnesia.transaction(fn ->
            :mnesia.write({
-             @mnesia_name, 
-             storable.uuid, 
-             storable.create_date, 
+             @mnesia_name,
+             storable.uuid,
+             storable.create_date,
              storable
-            })
+           })
          end) do
       {:atomic, :ok} -> {:ok, storable}
       err -> err
     end
   end
 
-  def fetch_entry(uuid) do
+  def fetch_entry(uuid) when is_bitstring(uuid) do
     case :mnesia.transaction(fn ->
            :mnesia.read({@mnesia_name, uuid})
          end) do
-      {:atomic, [{_, _, storable} | _]} ->
+      {:atomic, [{_, _, _, storable} | _]} ->
         {:ok, storable}
 
       {:atomic, []} ->
@@ -75,6 +75,15 @@ defmodule TemporaryServer.Storable do
     end
   end
 
+  def remove_entry(uuid) when is_bitstring(uuid) do
+    case :mnesia.transaction(fn ->
+           :mnesia.delete({@mnesia_name, uuid})
+         end) do
+      {:atomic, :ok} -> :ok
+      err -> err
+    end
+  end
+
   ## Helper functions ##
   defp create_new_storable(uuid, name) do
     with storage_path <- path_from_uuid(uuid),
@@ -83,7 +92,7 @@ defmodule TemporaryServer.Storable do
            uuid: uuid,
            name: name,
            chunked_file: chunked_file,
-           create_date: DateTime.utc_now()
+           create_date: DateTime.utc_now() |> DateTime.to_unix()
          } do
       store_entry(storable)
     else
@@ -125,6 +134,13 @@ defimpl Chunker.ChunkedFile, for: TemporaryServer.Storable do
 
   def closed?(chunked_file) do
     Chunker.closed?(chunked_file.chunked_file)
+  end
+
+  def remove(chunked_file) do
+    case Chunker.remove(chunked_file.chunked_file) do
+      :ok -> Storable.remove_entry(chunked_file.uuid)
+      err -> err
+    end
   end
 
   ## Helper functions ##
