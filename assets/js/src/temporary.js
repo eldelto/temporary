@@ -200,7 +200,7 @@ function blobToBase64(blob) {
 }
 
 function forEachSlice(file, progressCallback, callback) {
-  const sliceSize = 1024 * 1024; // 1 MB
+  const sliceSize = (1024 * 1024) / 4; // 0.25 MB
   const maxSize = file.size;
   const maxChunks = Math.ceil(maxSize / sliceSize);
 

@@ -22,8 +22,8 @@ defmodule TemporaryServerWeb.PageController do
           timestamp: timestamp
         )
 
-      {:error, message} ->
-        Logger.error(message)
+      {:error, msg} ->
+        msg |> inspect() |> Logger.error()
         render(conn, "download_error.html", uuid: uuid)
     end
   end

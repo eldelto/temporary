@@ -87,7 +87,7 @@ defmodule TemporaryServer.Storable do
   ## Helper functions ##
   defp create_new_storable(uuid, name) do
     with storage_path <- path_from_uuid(uuid),
-         {:ok, chunked_file} <- DiscBased.new(storage_path, 1_864_216),
+         {:ok, chunked_file} <- DiscBased.new(storage_path, 466_112),
          storable <- %__MODULE__{
            uuid: uuid,
            name: name,
