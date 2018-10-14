@@ -9,6 +9,8 @@ defmodule TemporaryServer.Storable do
 
   alias Chunker.DiscBased
 
+  require Logger
+
   defstruct uuid: nil,
             name: nil,
             chunked_file: nil,
@@ -19,15 +21,21 @@ defmodule TemporaryServer.Storable do
 
   ## Public API ##
   def init_mnesia do
-    :mnesia.create_schema([node()])
+    mnesia_dir = Path.join(@storage_path, "mnesia") |> String.to_charlist()
+    Application.put_env(:mnesia, :dir, mnesia_dir)
+
+    schema_result = :mnesia.create_schema([node()])
+    Logger.info("Creating Mnesia schema: #{inspect(schema_result)}")
+
     :ok = :mnesia.start()
 
-    :mnesia.create_table(
+    table_result = :mnesia.create_table(
       @mnesia_name,
       disc_copies: [node()],
       attributes: [:uuid, :create_date, :storable],
       type: :set
     )
+    Logger.info("Creating Mnesia table: #{inspect(table_result)}")
 
     {:ok, @mnesia_name}
   end
