@@ -47,7 +47,8 @@ end
 release :temporary_server do
   set version: current_version(:temporary_server)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    :mnesia
   ]
 end
 
