@@ -47,8 +47,16 @@ defmodule TemporaryServer.StorableTest do
     {:error, _} = Chunker.append_chunk(chunked_file, "hello ")
   end
 
-  @tag :skip
   test "inserting chunk" do
+    chunked_file = new_chunked_file()
+
+    {:ok, _} = Chunker.append_chunk(chunked_file, "0")
+    {:ok, _} = Chunker.append_chunk(chunked_file, "1")
+    assert {:ok, _} = Chunker.insert_chunk(chunked_file, "2", 1)
+
+    assert {:ok, "0"} = Chunker.get_chunk(chunked_file, 0)
+    assert {:ok, "2"} = Chunker.get_chunk(chunked_file, 1)
+    assert {:ok, "1"} = Chunker.get_chunk(chunked_file, 2)
   end
 
   test "getting chunk" do
@@ -57,8 +65,8 @@ defmodule TemporaryServer.StorableTest do
     {:ok, _} = Chunker.append_chunk(chunked_file, "hello")
     {:ok, _} = Chunker.append_chunk(chunked_file, "world")
 
-    assert {:ok, "world"} = Chunker.chunk(chunked_file, 1)
-    assert {:error, %InvalidIndexError{}} = Chunker.chunk(chunked_file, 100)
+    assert {:ok, "world"} = Chunker.get_chunk(chunked_file, 1)
+    assert {:error, %InvalidIndexError{}} = Chunker.get_chunk(chunked_file, 100)
   end
 
   test "getting chunk length" do
@@ -70,8 +78,18 @@ defmodule TemporaryServer.StorableTest do
     assert {:ok, 2} = Chunker.length(chunked_file)
   end
 
-  @tag :skip
   test "removing chunk" do
+    chunked_file = new_chunked_file()
+
+    {:ok, _} = Chunker.append_chunk(chunked_file, "0")
+    {:ok, _} = Chunker.append_chunk(chunked_file, "1")
+    {:ok, _} = Chunker.append_chunk(chunked_file, "2")
+
+    assert {:ok, _} = Chunker.remove_chunk(chunked_file, 1)
+
+    assert {:ok, "0"} = Chunker.get_chunk(chunked_file, 0)
+    assert {:ok, "2"} = Chunker.get_chunk(chunked_file, 1)
+    assert {:error, _} = Chunker.get_chunk(chunked_file, 2)
   end
 
   test "writeable?" do

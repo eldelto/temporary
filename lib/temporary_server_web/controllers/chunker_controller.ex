@@ -76,7 +76,7 @@ defmodule TemporaryServerWeb.ChunkerController do
   def get_chunk(conn, %{"uuid" => uuid, "index" => index}) do
     with {index, _} <- Integer.parse(index),
          {:ok, storable} <- Storable.fetch_entry(uuid),
-         {:ok, data} <- Chunker.chunk(storable, index) do
+         {:ok, data} <- Chunker.get_chunk(storable, index) do
       json(
         conn,
         Message.success(

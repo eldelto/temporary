@@ -69,6 +69,6 @@ defmodule TemporaryServer.Storable.Cleanup do
       DateTime.utc_now()
       |> DateTime.to_unix()
 
-    now - 3 * 24 * 60 * 60    
+    now - 3 * 24 * 60 * 60
   end
 end

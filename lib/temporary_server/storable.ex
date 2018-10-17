@@ -29,12 +29,14 @@ defmodule TemporaryServer.Storable do
 
     :ok = :mnesia.start()
 
-    table_result = :mnesia.create_table(
-      @mnesia_name,
-      disc_copies: [node()],
-      attributes: [:uuid, :create_date, :storable],
-      type: :set
-    )
+    table_result =
+      :mnesia.create_table(
+        @mnesia_name,
+        disc_copies: [node()],
+        attributes: [:uuid, :create_date, :storable],
+        type: :set
+      )
+
     Logger.info("Creating Mnesia table: #{inspect(table_result)}")
 
     {:ok, @mnesia_name}
@@ -116,16 +118,18 @@ end
 defimpl Chunker.ChunkedFile, for: TemporaryServer.Storable do
   alias TemporaryServer.Storable
 
-  def append_chunk(chunked_file, data) do
-    update_chunked_file(chunked_file, fn x -> Chunker.append_chunk(x, data) end)
+  def insert_chunk(chunked_file, data, index) do
+    update_chunked_file(chunked_file, fn x ->
+      Chunker.insert_chunk(x, data, index)
+    end)
   end
 
   def commit(chunked_file) do
     update_storable(chunked_file, fn x -> Chunker.commit(x) end)
   end
 
-  def chunk(chunked_file, index) do
-    Chunker.chunk(chunked_file.chunked_file, index)
+  def get_chunk(chunked_file, index) do
+    Chunker.get_chunk(chunked_file.chunked_file, index)
   end
 
   def length(chunked_file) do
@@ -142,6 +146,12 @@ defimpl Chunker.ChunkedFile, for: TemporaryServer.Storable do
 
   def closed?(chunked_file) do
     Chunker.closed?(chunked_file.chunked_file)
+  end
+
+  def remove_chunk(chunked_file, index) do
+    update_chunked_file(chunked_file, fn x ->
+      Chunker.remove_chunk(x, index)
+    end)
   end
 
   def remove(chunked_file) do
