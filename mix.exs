@@ -40,7 +40,7 @@ defmodule TemporaryServer.Mixfile do
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5", runtime: false},
       {:mix_test_watch, "~> 0.6", only: :dev, runtime: false},
-      {:chunker, git: "https://gitlab.com/eldelto/chunker.git"}
+      {:chunker, "~> 0.12.0"}
     ]
   end
 end
