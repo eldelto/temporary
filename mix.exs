@@ -4,8 +4,8 @@ defmodule TemporaryServer.Mixfile do
   def project do
     [
       app: :temporary_server,
-      version: "0.7.3",
-      elixir: "~> 1.6",
+      version: "0.7.4",
+      elixir: "~> 1.10",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -40,7 +40,7 @@ defmodule TemporaryServer.Mixfile do
       {:plug_cowboy, "~> 1.0"},
       {:distillery, "~> 1.5", runtime: false},
       {:mix_test_watch, "~> 0.6", only: :dev, runtime: false},
-      {:chunker, "~> 0.12.0"}
+      {:chunker, "~> 0.12.1"}
     ]
   end
 end
