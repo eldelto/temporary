@@ -32,7 +32,7 @@ Temporary uses the following flow to encrypt and upload your files:
 
 ### Chunker Implementation
 
-Temporary uses ![chunker](https://github.com/eldelto/chunker) to deal with
+Temporary uses [chunker](https://github.com/eldelto/chunker) to deal with
 files in chunks.
 
 The Mnesia based implementation can be found in `storable.ex`.
@@ -42,7 +42,7 @@ The Mnesia based implementation can be found in `storable.ex`.
 Uploaded files are stored in Mnesia for a limited amount of time (currently 3
 days).
 
-For the cleanup a scheduled process (![cleanup.ex](https://github.com/eldelto/temporary/blob/master/lib/temporary_server/cleanup.ex)) runs every 5 minutes to check for old files and deletes them.
+For the cleanup a scheduled process ([cleanup.ex](https://github.com/eldelto/temporary/blob/master/lib/temporary_server/cleanup.ex)) runs every 5 minutes to check for old files and deletes them.
 
 ## Getting Started
 
