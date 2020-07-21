@@ -40,14 +40,16 @@ class FileDownload extends React.Component {
         }.bind(this))
       }.bind(this))
       .then(function(data) {
-        return decryptFile(data, password);
+        let worker = createWorker();
+        worker.postMessage([data, name, password]);
+        //return decryptFile(data, password);
       })
       .then(function(data) {        
-        return chunkedFileToBlob(data);
+        //return chunkedFileToBlob(data);
       })
       .then(function(blob) {        
         this.refs.downloadButton.success();
-        return downloadFile(blob, decryptData(name, password));
+        //return downloadFile(blob, decryptData(name, password));
       }.bind(this))
       .catch(function(error) {
         console.error("Error while fetching file: " + error);
@@ -179,6 +181,43 @@ function chunkedFileToBlob(chunks) {
     
     return resolve(new Blob(chunks));
   });  
+}
+
+function createWorker() {
+  let worker = function() {
+    function decryptData(data, password) {
+      return CryptoJS.AES.decrypt(data, password).toString(CryptoJS.enc.Latin1);
+    }
+    
+    function decryptFile(data, password) {
+      return new Promise(function(resolve, reject) {
+        data = data.map(function(d) {      
+          return decryptData(d, password);      
+        });
+        return resolve(data);
+      });
+    }
+
+
+    onmessage = function(e) {
+      let data = e.data[0];
+      let name = e.data[1];
+      let password = e.data[2];
+      decryptFile(data, password)
+      .then(function(data) {        
+        return chunkedFileToBlob(data);
+      })
+      .then(function(blob) {
+        return downloadFile(blob, decryptData(name, password));
+      });
+    }
+  }
+
+  let code = worker.toString();
+  code = code.substring(code.indexOf("{")+1, code.lastIndexOf("}"));
+
+  let blob = new Blob([code], {type: "application/javascript"});
+  return new Worker(URL.createObjectURL(blob));
 }
 
 export default FileDownload;
