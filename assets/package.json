@@ -9,7 +9,7 @@
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "react": "^16.4.0",
-    "react-dom": "^16.4.0",
+    "react-dom": "^16.4.2",
     "babel-preset-react": "^6.24.0",
     "crypto-js": "^3.1.9-1"
   },
