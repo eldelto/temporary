@@ -88,3 +88,6 @@ mix phx.server
 
 ## Screens
 
+![Upload View](https://raw.githubusercontent.com/eldelto/temporary/master/docs/resources/upload-view.png)
+
+![Download View](https://raw.githubusercontent.com/eldelto/temporary/master/docs/resources/download-view.png)
