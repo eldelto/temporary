@@ -20,7 +20,7 @@ RUN rm -Rf _build && \
     node ./node_modules/brunch/bin/brunch b -p && \
     cd .. && \
     mix phx.digest && \
-    mix release --env prod
+    mix release
 
 #Extract Release archive to /rel for copying in next stage
 RUN APP_NAME="temporary_server" && \
