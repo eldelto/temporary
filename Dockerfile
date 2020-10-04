@@ -1,7 +1,7 @@
 #===========
 #Build Stage
 #===========
-FROM bitwalker/alpine-elixir:1.10 as build
+FROM bitwalker/alpine-elixir:1.10.4 as build
 
 #Copy the source folder into the Docker image
 COPY . .
