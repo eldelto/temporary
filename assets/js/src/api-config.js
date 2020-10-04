@@ -2,8 +2,8 @@ let backendHost;
 
 const hostname = window && window.location && window.location.hostname;
 
-if(hostname === "www.eldelto.net") {
-  backendHost = "https://www.eldelto.net/temporary";
+if(hostname === "temporary.eldelto.net") {
+  backendHost = "https://temporary.eldelto.net";
 } else {
   backendHost = process.env.REACT_APP_BACKEND_HOST || "http://localhost:4000";
 }
