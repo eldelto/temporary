@@ -31,7 +31,7 @@ FROM pentacent/alpine-erlang-base:latest
 
 WORKDIR /app
 
-RUN apk update && apk add openssl ncurses-libs
+RUN apk update && apk add libressl2.7-libcrypto
 
 # Set environment variables and expose port
 EXPOSE 4000
