@@ -29,22 +29,19 @@ RUN rm -Rf _build && \
 #=================
 FROM pentacent/alpine-erlang-base:latest
 
+WORKDIR /app
+
 RUN apk update && \
-    apk add openssl
+    apk add -u openssl
 
 # Set environment variables and expose port
 EXPOSE 4000
 ENV REPLACE_OS_VARS=true \
     PORT=4000
 
-WORKDIR /app
 
 # Copy release files from the previous stage
 COPY --from=build /app/_build/prod/rel/temporary_server/ .
-
-RUN chown default -R /app/
-
-USER default
 
 # Set default entrypoint and command
 ENTRYPOINT ["/app/bin/temporary_server"]
