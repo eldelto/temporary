@@ -27,7 +27,7 @@ RUN APP_NAME="temporary_server" && \
     RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME` && \
     mkdir /export && \
     cp -R "$RELEASE_DIR" /export/ && \
-    ls -ltr /export/
+    chown default -R /export/
 
 #================
 #Deployment Stage
