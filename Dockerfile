@@ -27,11 +27,9 @@ RUN rm -Rf _build && \
 #=================
 # Deployment Stage
 #=================
-FROM pentacent/alpine-erlang-base:latest
+FROM bitwalker/alpine-elixir:1.10.4 as build
 
 WORKDIR /app
-
-RUN apk update && apk add libressl2.7-libcrypto
 
 # Set environment variables and expose port
 EXPOSE 4000
