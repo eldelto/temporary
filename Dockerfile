@@ -38,12 +38,12 @@ EXPOSE 4000
 ENV REPLACE_OS_VARS=true \
     PORT=4000
 
-#Copy and extract .tar.gz Release file from the previous stage
+#Copy and extract release file from the previous stage
 COPY --from=build /export/ .
 
 #Change user
 USER default
 
 #Set default entrypoint and command
-ENTRYPOINT ["/bin/temporary_server"]
+ENTRYPOINT ["/opt/app/bin/temporary_server"]
 CMD ["start"]
