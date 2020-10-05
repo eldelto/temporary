@@ -24,9 +24,10 @@ RUN rm -Rf _build && \
 
 #Extract Release archive to /rel for copying in next stage
 RUN APP_NAME="temporary_server" && \
-    RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME/*` && \
+    RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME` && \
     mkdir /export && \
-    mv $RELEASE_DIR "/export/"
+    cp -R "$RELEASE_DIR" /export/ && \
+    ls -ltr /export/
 
 #================
 #Deployment Stage
@@ -45,5 +46,5 @@ COPY --from=build /export/ /opt/app/
 USER default
 
 #Set default entrypoint and command
-ENTRYPOINT ["/opt/app/bin/temporary_server"]
+ENTRYPOINT ["/opt/app/temporary_server/bin/temporary_server"]
 CMD ["start"]
