@@ -29,7 +29,7 @@ RUN rm -Rf _build && \
 #=================
 FROM bitwalker/alpine-erlang:latest
 
-WORKDIR /opt/app
+WORKDIR /app
 
 # Set environment variables and expose port
 EXPOSE 4000
@@ -40,9 +40,7 @@ ENV REPLACE_OS_VARS=true \
 # Copy release files from the previous stage
 COPY --from=build /app/_build/prod/rel/temporary_server/ .
 
-USER default
-
 # Set default entrypoint and command
-ENTRYPOINT ["/opt/app/bin/temporary_server"]
+ENTRYPOINT ["/app/bin/temporary_server"]
 
 CMD ["start"]
