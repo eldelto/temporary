@@ -43,5 +43,6 @@ COPY --from=build /app/_build/prod/rel/temporary_server/ .
 USER default
 
 # Set default entrypoint and command
-ENTRYPOINT ["/app/bin/temporary_server"]
+ENTRYPOINT ["/opt/app/bin/temporary_server"]
+
 CMD ["start"]
