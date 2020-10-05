@@ -27,9 +27,9 @@ RUN rm -Rf _build && \
 #=================
 # Deployment Stage
 #=================
-FROM bitwalker/alpine-elixir:1.10.4 as build
+FROM bitwalker/alpine-erlang:latest
 
-WORKDIR /app
+WORKDIR /opt/app
 
 # Set environment variables and expose port
 EXPOSE 4000
@@ -39,6 +39,8 @@ ENV REPLACE_OS_VARS=true \
 
 # Copy release files from the previous stage
 COPY --from=build /app/_build/prod/rel/temporary_server/ .
+
+USER default
 
 # Set default entrypoint and command
 ENTRYPOINT ["/app/bin/temporary_server"]
