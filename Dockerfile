@@ -30,7 +30,7 @@ RUN rm -Rf _build && \
 FROM pentacent/alpine-erlang-base:latest
 
 RUN apk update && \
-    apk add -u musl musl-dev musl-utils nodejs-npm build-base
+    apk add openssl
 
 # Set environment variables and expose port
 EXPOSE 4000
