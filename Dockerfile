@@ -24,10 +24,9 @@ RUN rm -Rf _build && \
 
 #Extract Release archive to /rel for copying in next stage
 RUN APP_NAME="temporary_server" && \
-    RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME/` && \
+    RELEASE_DIR=`ls -d _build/prod/rel/$APP_NAME/*` && \
     mkdir /export && \
-    mv $RELEASE_DIR "/export/" && \
-    chown /export/bin/*
+    mv $RELEASE_DIR "/export/"
 
 #================
 #Deployment Stage
@@ -40,7 +39,7 @@ ENV REPLACE_OS_VARS=true \
     PORT=4000
 
 #Copy and extract release file from the previous stage
-COPY --from=build /export/ .
+COPY --from=build /export/ /opt/app/
 
 #Change user
 USER default
