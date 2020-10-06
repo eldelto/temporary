@@ -19,7 +19,8 @@ defmodule TemporaryServer.Mixfile do
   def application do
     [
       mod: {TemporaryServer.Application, []},
-      extra_applications: [:logger, :runtime_tools, :mnesia]
+      extra_applications: [:logger, :runtime_tools],
+      included_applications: [:mnesia]
     ]
   end
 
