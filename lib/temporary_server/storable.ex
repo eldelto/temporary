@@ -63,6 +63,10 @@ defmodule TemporaryServer.Storable do
            })
          end) do
       {:atomic, :ok} -> {:ok, storable}
+
+      {:aborted, {:no_exists, @mnesia_name}} ->
+        {:error, __MODULE__.NotFoundError.exception("Table not found.")}
+
       err -> err
     end
   end
