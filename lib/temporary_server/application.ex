@@ -15,7 +15,7 @@ defmodule TemporaryServer.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :all_for_one, name: TemporaryServer.Supervisor]
+    opts = [strategy: :one_for_all, name: TemporaryServer.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
