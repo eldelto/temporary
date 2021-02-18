@@ -41,6 +41,6 @@ ENV REPLACE_OS_VARS=true \
 COPY --from=build /app/_build/prod/rel/temporary_server/ .
 
 # Set default entrypoint and command
-ENTRYPOINT /app/bin/temporary_server --name "temporary@$HOSTNAME"
+ENTRYPOINT ["/app/bin/temporary_server"]
 
 CMD ["start"]

@@ -1,0 +1,17 @@
+version: "3.5"
+services:
+  temporary:
+    image: temporary_server:latest
+    hostname: temporary
+    ports:
+      - 4000:4000
+    volumes:
+      - /opt/elixir/temporary/file_storage:/app/file_storage
+    networks:
+      - caddy_net
+    restart: always
+
+networks:
+  caddy_net:
+    name: caddy_net
+    external: true
