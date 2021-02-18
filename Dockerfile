@@ -1,7 +1,7 @@
 #============
 # Build Stage
 #============
-FROM bitwalker/alpine-elixir:1.10.4 as build
+FROM bitwalker/alpine-elixir:1.11.0 as build
 
 RUN apk update && \
     apk add -u musl musl-dev musl-utils nodejs-npm build-base

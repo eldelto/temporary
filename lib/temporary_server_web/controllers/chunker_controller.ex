@@ -87,6 +87,7 @@ defmodule TemporaryServerWeb.ChunkerController do
     else
       true -> json(conn, Message.error("Chunked file is not committed yet."))
       {:error, msg} -> json(conn, Message.error(msg))
+      :error -> json(conn, Message.error("Internal error."))
     end
   end
 end

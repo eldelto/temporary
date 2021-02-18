@@ -4,8 +4,8 @@ defmodule TemporaryServer.Mixfile do
   def project do
     [
       app: :temporary_server,
-      version: "0.7.4",
-      elixir: "~> 1.10",
+      version: "0.7.5",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,

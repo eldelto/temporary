@@ -1,22 +1,24 @@
 defmodule TemporaryServer.Storable.Cleanup do
-  use GenServer
+  use GenServer, restart: :permanent
 
   alias TemporaryServer.Storable
 
   require Logger
 
   ## Client ##
-  def start_link do
-    GenServer.start_link(__MODULE__, [])
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts)
   end
 
   ## Server ##
+  @impl true
   def init(state) do
     # Schedule work to be performed at some point
     schedule_work()
     {:ok, state}
   end
 
+  @impl true
   def handle_info(:work, state) do
     remove_old_files()
     # Reschedule once more
@@ -39,7 +41,7 @@ defmodule TemporaryServer.Storable.Cleanup do
         Logger.info("Removed file with uuid '#{inspect(storable.uuid)}'.")
       else
         err ->
-          Logger.error("Error while removing file with uuid '#{inspect(storable.uuid)}': 
+          Logger.error("Error while removing file with uuid '#{inspect(storable.uuid)}':
             #{inspect(err)}")
       end
     end)

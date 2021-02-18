@@ -9,13 +9,13 @@ defmodule TemporaryServer.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(TemporaryServerWeb.Endpoint, []),
-      worker(TemporaryServer.Storable.Cleanup, [])
+      TemporaryServerWeb.Endpoint,
+      TemporaryServer.Storable.Cleanup
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: TemporaryServer.Supervisor]
+    opts = [strategy: :all_for_one, name: TemporaryServer.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
